@@ -24,7 +24,10 @@ export default function WorkflowsPage() {
     try {
       const token = await getAccessTokenSilently()
       const result = await triggerWorkflow(selected.id, inputData, token)
-      navigate(`/workflows/${selected.id}/runs/${result.runId}`)
+      // Prefer the workflowId echoed back by Mastra over selected.id — they
+      // must match what the status endpoint expects, and Mastra is authoritative.
+      const wfId = result.workflowId ?? selected.id
+      navigate(`/workflows/${wfId}/runs/${result.runId}`)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Failed to trigger workflow')
     } finally {
@@ -70,24 +73,26 @@ export default function WorkflowsPage() {
         <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
           {workflows.length} workflow{workflows.length !== 1 ? 's' : ''}
         </p>
-        {workflows.map(wf => (
-          <WorkflowListItem
-            key={wf.id}
-            workflow={wf}
-            isActive={selected?.id === wf.id}
-            onClick={() => {
-              setSelected(wf)
-              setSubmitError(null)
-            }}
-          />
-        ))}
+        <div className="space-y-0.5 px-1">
+          {workflows.map(wf => (
+            <WorkflowListItem
+              key={wf.id}
+              workflow={wf}
+              isActive={selected?.id === wf.id}
+              onClick={() => {
+                setSelected(wf)
+                setSubmitError(null)
+              }}
+            />
+          ))}
+        </div>
       </aside>
 
       {/* Right panel */}
       {selected && (
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] shadow-sm">
           {/* Panel header */}
-          <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 md:px-5">
+          <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-3 py-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-accent)] to-violet-600 text-xs font-bold text-white">
               {selected.name.slice(0, 2).toUpperCase()}
             </div>

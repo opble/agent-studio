@@ -41,21 +41,23 @@ export default function HistoryPage() {
         <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
           Workflows
         </p>
-        {workflows.map(wf => (
-          <WorkflowListItem
-            key={wf.id}
-            workflow={wf}
-            isActive={selected?.id === wf.id}
-            onClick={() => setSelected(wf)}
-          />
-        ))}
+        <div className="space-y-0.5 px-1">
+          {workflows.map(wf => (
+            <WorkflowListItem
+              key={wf.id}
+              workflow={wf}
+              isActive={selected?.id === wf.id}
+              onClick={() => setSelected(wf)}
+            />
+          ))}
+        </div>
       </aside>
 
       {/* Runs panel */}
       {selected && (
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] shadow-sm">
           {/* Header */}
-          <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 md:px-5">
+          <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-3 py-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-accent)] to-violet-600 text-xs font-bold text-white">
               {selected.name.slice(0, 2).toUpperCase()}
             </div>

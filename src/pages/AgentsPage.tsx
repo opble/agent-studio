@@ -43,21 +43,23 @@ export default function AgentsPage() {
       {/* Agent list */}
       <aside
         className={`
-        flex flex-col gap-0.5 overflow-y-auto
+        flex flex-col overflow-y-auto
         ${selected ? 'hidden md:flex md:w-60 md:shrink-0' : 'flex w-full md:w-60 md:shrink-0'}
       `}
       >
         <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
           {agents.length} agent{agents.length !== 1 ? 's' : ''}
         </p>
-        {agents.map(agent => (
-          <AgentListItem
-            key={agent.id}
-            agent={agent}
-            isActive={selected?.id === agent.id}
-            onClick={() => setSelected(agent)}
-          />
-        ))}
+        <div className="space-y-0.5 px-1">
+          {agents.map(agent => (
+            <AgentListItem
+              key={agent.id}
+              agent={agent}
+              isActive={selected?.id === agent.id}
+              onClick={() => setSelected(agent)}
+            />
+          ))}
+        </div>
       </aside>
 
       {/* Chat panel */}

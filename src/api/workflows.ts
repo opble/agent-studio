@@ -34,6 +34,8 @@ export interface WorkflowRun {
 
 export interface TriggerRunResult {
   runId: string
+  /** Mastra echoes back the workflowId; use this (not the locally-held selected.id) for navigation */
+  workflowId?: string
   status?: WorkflowRunStatus
   result?: unknown
   steps?: Record<string, WorkflowStepResult>
@@ -49,18 +51,33 @@ export async function listWorkflows(token: string): Promise<Workflow[]> {
   const res = await mastraFetch('/api/workflows', { method: 'GET' }, token)
   const data: unknown = await res.json()
 
-  if (Array.isArray(data)) return data as Workflow[]
+  if (Array.isArray(data)) return normaliseWorkflowArray(data)
 
   if (data && typeof data === 'object') {
     const obj = data as Record<string, unknown>
-    if (Array.isArray(obj.workflows)) return obj.workflows as Workflow[]
+    if (Array.isArray(obj.workflows)) return normaliseWorkflowArray(obj.workflows)
+    if (Array.isArray(obj.results)) return normaliseWorkflowArray(obj.results)
 
-    return Object.entries(obj).map(([id, config]) => ({
-      id,
+    // Mastra default: Record<workflowId, config>
+    // Spread THEN set id so a stale id field in config cannot override the map key.
+    return Object.entries(obj).map(([key, config]) => ({
       ...(config as Omit<Workflow, 'id'>),
+      id: (config as Workflow).id ?? key,
     }))
   }
   return []
+}
+
+/** Ensures every workflow in a plain array has an id field. */
+function normaliseWorkflowArray(arr: unknown[]): Workflow[] {
+  return arr.map((item, i) => {
+    const wf = item as Partial<Workflow> & Record<string, unknown>
+    return {
+      ...wf,
+      id: (wf.id ?? wf.workflowId ?? String(i)) as string,
+      name: wf.name ?? wf.id ?? 'Workflow',
+    }
+  })
 }
 
 /**
