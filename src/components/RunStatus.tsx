@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { WorkflowRun } from '../api/workflows'
 import { TERMINAL_STATUSES } from '../api/workflows'
 import Spinner from './ui/Spinner'
@@ -10,27 +11,61 @@ interface Props {
 }
 
 export default function RunStatus({ run }: Props) {
+  const [expanded, setExpanded] = useState(false)
   const isTerminal = TERMINAL_STATUSES.includes(run.status)
   const steps = Object.entries(run.steps ?? {})
+  const runDate = run.createdAt ?? run.updatedAt
 
   return (
     <div className="space-y-4">
-      {/* Run summary */}
-      <div className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-4 py-3.5 shadow-sm">
-        <div className="flex items-center gap-2">
-          {!isTerminal && <Spinner size="sm" />}
-          <StepStatusBadge status={run.status} />
-        </div>
-        <span className="text-xs text-[var(--color-text-muted)]">
-          Run{' '}
-          <span className="font-mono text-[var(--color-text-secondary)]">
-            {run.runId.slice(0, 8)}…
+      {/* Run summary card */}
+      <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] shadow-sm">
+        {/* Header row — always visible, click to expand */}
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[var(--color-surface-overlay)]"
+        >
+          <div className="flex items-center gap-2">
+            {!isTerminal && <Spinner size="sm" />}
+            <StepStatusBadge status={run.status} />
+          </div>
+          <span className="text-xs text-[var(--color-text-muted)]">
+            Run{' '}
+            <span className="font-mono text-[var(--color-text-secondary)]">
+              {run.runId.slice(0, 8)}…
+            </span>
           </span>
-        </span>
-        {run.updatedAt && (
-          <span className="ml-auto text-xs text-[var(--color-text-muted)]">
-            {new Date(run.updatedAt).toLocaleTimeString()}
-          </span>
+          {runDate && (
+            <span className="ml-auto shrink-0 text-xs text-[var(--color-text-muted)]">
+              {new Date(runDate).toLocaleString()}
+            </span>
+          )}
+          <ChevronIcon expanded={expanded} />
+        </button>
+
+        {/* Expandable body */}
+        {expanded && (
+          <div className="space-y-4 border-t border-[var(--color-border)] px-4 py-4">
+            {/* Full run ID */}
+            <div>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
+                Run ID
+              </p>
+              <p className="break-all font-mono text-xs text-[var(--color-text-secondary)]">
+                {run.runId}
+              </p>
+            </div>
+
+            {/* Input payload */}
+            {run.payload && Object.keys(run.payload).length > 0 && (
+              <div>
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
+                  Input
+                </p>
+                <ResultRenderer result={run.payload} />
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -63,5 +98,24 @@ export default function RunStatus({ run }: Props) {
         </div>
       )}
     </div>
+  )
+}
+
+function ChevronIcon({ expanded }: { expanded: boolean }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
+      aria-hidden
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
   )
 }

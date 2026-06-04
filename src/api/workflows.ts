@@ -66,6 +66,8 @@ export const WorkflowRunSchema = z.object({
   steps: z.record(z.string(), WorkflowStepResultSchema).default({}),
   /** Always present — the static step graph from the workflow definition */
   serializedStepGraph: z.array(WorkflowStepGraphEntrySchema).optional(),
+  /** Workflow input data — top-level `payload` on single-run endpoint; extracted from snapshot.context.input on list endpoint */
+  payload: z.record(z.string(), z.unknown()).optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 })
@@ -123,6 +125,7 @@ const ListRunItemSchema = z
       error: snap.error,
       steps,
       serializedStepGraph: snap.serializedStepGraph,
+      payload: snap.context['input'] as Record<string, unknown> | undefined,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     }

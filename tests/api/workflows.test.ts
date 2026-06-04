@@ -158,6 +158,14 @@ describe('listRuns', () => {
     expect(run.createdAt).toBe('2026-06-04T05:29:28.669Z')
   })
 
+  it('extracts payload from snapshot.context.input', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
+    )
+    const [run] = await listRuns('wf1', 'tok')
+    expect(run.payload).toEqual({ city: 'ho chi minh' })
+  })
+
   it('defaults status to running when snapshot is absent', async () => {
     const bare = { runId: 'r2', workflowName: 'wf', createdAt: '2026-01-01T00:00:00.000Z' }
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runs: [bare], total: 1 })))

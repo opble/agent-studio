@@ -1,28 +1,32 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import RunStatus from '../components/RunStatus'
 import Spinner from '../components/ui/Spinner'
 import { useWorkflowRun } from '../hooks/useWorkflowRun'
 
 export default function WorkflowRunPage() {
   const { workflowId = '', runId = '' } = useParams()
-  const navigate = useNavigate()
   const { data: run, isLoading, isError } = useWorkflowRun(workflowId, runId)
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
-        <button
-          onClick={() => navigate('/workflows')}
-          className="font-medium hover:text-[var(--color-accent)] transition-colors"
+      <nav className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+        <Link
+          to="/workflows"
+          className="font-medium transition-colors hover:text-[var(--color-accent)]"
         >
           Workflows
-        </button>
+        </Link>
         <ChevronIcon />
-        <span className="font-mono text-[var(--color-text-secondary)]">{workflowId}</span>
+        <Link
+          to={`/history?workflowId=${workflowId}`}
+          className="font-mono transition-colors hover:text-[var(--color-accent)]"
+        >
+          {workflowId}
+        </Link>
         <ChevronIcon />
         <span className="font-mono text-[var(--color-text-muted)]">{runId.slice(0, 8)}…</span>
-      </div>
+      </nav>
 
       <h2 className="text-lg font-bold text-[var(--color-text-primary)]">Run Progress</h2>
 

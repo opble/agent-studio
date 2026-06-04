@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { Workflow } from '../api/workflows'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
@@ -9,7 +9,18 @@ import { useWorkflows } from '../hooks/useWorkflows'
 
 export default function HistoryPage() {
   const { data: workflows, isLoading: loadingWorkflows } = useWorkflows()
-  const [selected, setSelected] = useState<Workflow | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const selectedId = searchParams.get('workflowId')
+  const selected = workflows?.find(w => w.id === selectedId) ?? null
+
+  function selectWorkflow(wf: Workflow) {
+    setSearchParams({ workflowId: wf.id })
+  }
+
+  function clearSelection() {
+    setSearchParams({})
+  }
 
   if (loadingWorkflows) {
     return (
@@ -47,7 +58,7 @@ export default function HistoryPage() {
               key={wf.id}
               workflow={wf}
               isActive={selected?.id === wf.id}
-              onClick={() => setSelected(wf)}
+              onClick={() => selectWorkflow(wf)}
             />
           ))}
         </div>
@@ -69,7 +80,7 @@ export default function HistoryPage() {
           {/* Mobile back */}
           <div className="flex items-center border-b border-[var(--color-border)] px-4 py-2 md:hidden">
             <button
-              onClick={() => setSelected(null)}
+              onClick={clearSelection}
               className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-accent)]"
             >
               <ChevronLeftIcon /> Back to workflows
