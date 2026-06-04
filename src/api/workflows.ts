@@ -9,12 +9,7 @@ export interface Workflow {
   steps?: Record<string, unknown>
 }
 
-export type WorkflowRunStatus =
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'suspended'
-  | 'cancelled'
+export type WorkflowRunStatus = 'running' | 'completed' | 'failed' | 'suspended' | 'cancelled'
 
 export const TERMINAL_STATUSES: WorkflowRunStatus[] = ['completed', 'failed', 'cancelled']
 
@@ -52,13 +47,15 @@ export interface TriggerRunResult {
  */
 export async function listWorkflows(token: string): Promise<Workflow[]> {
   const res = await mastraFetch('/api/workflows', { method: 'GET' }, token)
-  const data = await res.json()
+  const data: unknown = await res.json()
 
-  if (Array.isArray(data)) return data
-  if (Array.isArray(data?.workflows)) return data.workflows
+  if (Array.isArray(data)) return data as Workflow[]
 
   if (data && typeof data === 'object') {
-    return Object.entries(data).map(([id, config]) => ({
+    const obj = data as Record<string, unknown>
+    if (Array.isArray(obj.workflows)) return obj.workflows as Workflow[]
+
+    return Object.entries(obj).map(([id, config]) => ({
       id,
       ...(config as Omit<Workflow, 'id'>),
     }))
@@ -71,14 +68,11 @@ export async function listWorkflows(token: string): Promise<Workflow[]> {
  *
  * Triggers a workflow run and waits for the result.
  * Returns the full run result including runId, status, steps, and result.
- *
- * Current Mastra API (latest):
- *   POST /start-async  { inputData }  →  { runId, status, result, steps }
  */
 export async function triggerWorkflow(
   workflowId: string,
   inputData: Record<string, unknown>,
-  token: string,
+  token: string
 ): Promise<TriggerRunResult> {
   const res = await mastraFetch(
     `/api/workflows/${workflowId}/start-async`,
@@ -86,29 +80,33 @@ export async function triggerWorkflow(
       method: 'POST',
       body: JSON.stringify({ inputData }),
     },
-    token,
+    token
   )
-  return res.json()
+  return res.json() as Promise<TriggerRunResult>
 }
 
 /** GET /api/workflows/:workflowId/runs — list all runs for a workflow. */
 export async function listRuns(workflowId: string, token: string): Promise<WorkflowRun[]> {
   const res = await mastraFetch(`/api/workflows/${workflowId}/runs`, { method: 'GET' }, token)
-  const data = await res.json()
-  // Mastra returns { runs: [...], total, page, perPage } or plain array
-  return Array.isArray(data) ? data : (data?.runs ?? [])
+  const data: unknown = await res.json()
+  if (Array.isArray(data)) return data as WorkflowRun[]
+  if (data && typeof data === 'object') {
+    const obj = data as Record<string, unknown>
+    if (Array.isArray(obj.runs)) return obj.runs as WorkflowRun[]
+  }
+  return []
 }
 
 /** GET /api/workflows/:workflowId/runs/:runId — get a single run's state. */
 export async function getRun(
   workflowId: string,
   runId: string,
-  token: string,
+  token: string
 ): Promise<WorkflowRun> {
   const res = await mastraFetch(
     `/api/workflows/${workflowId}/runs/${runId}`,
     { method: 'GET' },
-    token,
+    token
   )
-  return res.json()
+  return res.json() as Promise<WorkflowRun>
 }

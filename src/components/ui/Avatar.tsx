@@ -13,7 +13,12 @@ const sizes = {
 
 export default function Avatar({ src, name, size = 'sm' }: Props) {
   const initials = name
-    ? name.split(/[\s_-]/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+    ? name
+        .split(/[\s_-]/)
+        .map(w => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
     : '?'
 
   if (src) {

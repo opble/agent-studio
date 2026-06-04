@@ -22,7 +22,10 @@ const textClass: Record<HealthStatus, string> = {
 export default function HealthIndicator() {
   const status = useHealthCheck()
   return (
-    <div className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-2.5 py-1" title={labels[status]}>
+    <div
+      className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-2.5 py-1"
+      title={labels[status]}
+    >
       <span className={`h-1.5 w-1.5 rounded-full ${dotClass[status]}`} aria-hidden />
       <span className={`hidden text-[11px] font-medium sm:inline ${textClass[status]}`}>
         {labels[status]}

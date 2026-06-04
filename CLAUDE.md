@@ -150,8 +150,31 @@ Do not build: multi-user RBAC, multiple server connections, traces/observability
 "dev": "vite",
 "build": "tsc && vite build",
 "preview": "vite preview",
-"lint": "eslint src --ext ts,tsx"
+"lint": "eslint src tests",
+"lint:fix": "eslint src tests --fix",
+"format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\"",
+"format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\"",
+"check": "pnpm lint && pnpm format:check",
+"test": "vitest run",
+"test:watch": "vitest"
 ```
+
+## Code Quality — Mandatory Enforcement
+
+**After every code change, you MUST run both lint and format before considering the task complete:**
+
+```bash
+pnpm lint:fix   # auto-fix ESLint errors (import order, unused vars, etc.)
+pnpm format     # apply Prettier formatting
+pnpm lint       # confirm zero errors remain (warnings are OK)
+```
+
+Rules enforced:
+- **ESLint** (`eslint.config.js`): `typescript-eslint` strict typed rules, `react-hooks`, `jsx-a11y`, `import/order`, `prettier` integration
+- **Prettier** (`prettier.config.js`): single quotes, no semi, 100-char print width, trailing commas (ES5), LF line endings
+- **TypeScript**: strict mode with `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
+
+Never commit code that has ESLint **errors** (exit code 1). Warnings are acceptable only for Vitest `vi.mock()` import-order patterns which cannot be reordered without breaking test hoisting.
 
 ## Deployment
 

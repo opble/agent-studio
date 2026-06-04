@@ -1,8 +1,8 @@
-import StepStatusBadge from './workflows/StepStatusBadge'
-import RunStepRow from './workflows/RunStepRow'
-import Spinner from './ui/Spinner'
 import type { WorkflowRun } from '../api/workflows'
 import { TERMINAL_STATUSES } from '../api/workflows'
+import Spinner from './ui/Spinner'
+import RunStepRow from './workflows/RunStepRow'
+import StepStatusBadge from './workflows/StepStatusBadge'
 
 interface Props {
   run: WorkflowRun
@@ -21,7 +21,10 @@ export default function RunStatus({ run }: Props) {
           <StepStatusBadge status={run.status} />
         </div>
         <span className="text-xs text-[var(--color-text-muted)]">
-          Run <span className="font-mono text-[var(--color-text-secondary)]">{run.runId.slice(0, 8)}…</span>
+          Run{' '}
+          <span className="font-mono text-[var(--color-text-secondary)]">
+            {run.runId.slice(0, 8)}…
+          </span>
         </span>
         {run.updatedAt && (
           <span className="ml-auto text-xs text-[var(--color-text-muted)]">

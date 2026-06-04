@@ -15,7 +15,7 @@ export default function LoginPage() {
   }, [isAuthenticated, isLoading, navigate, from])
 
   function handleLogin() {
-    loginWithRedirect({ appState: { returnTo: from } })
+    void loginWithRedirect({ appState: { returnTo: from } })
   }
 
   return (
@@ -95,8 +95,18 @@ function BrandMark() {
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
           <circle cx="12" cy="12" r="3.5" stroke="white" strokeWidth="2" />
           <circle cx="12" cy="12" r="1.2" fill="white" />
-          <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M5.9 5.9l1.8 1.8M16.3 16.3l1.8 1.8M5.9 18.1l1.8-1.8M16.3 7.7l1.8-1.8" stroke="white" strokeWidth="1.3" strokeLinecap="round" />
+          <path
+            d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5"
+            stroke="white"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          <path
+            d="M5.9 5.9l1.8 1.8M16.3 16.3l1.8 1.8M5.9 18.1l1.8-1.8M16.3 7.7l1.8-1.8"
+            stroke="white"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
     </div>
@@ -113,7 +123,18 @@ function Auth0Icon() {
 
 function LockIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0 text-[var(--color-text-muted)]">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className="shrink-0 text-[var(--color-text-muted)]"
+    >
       <rect x="3" y="11" width="18" height="11" rx="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>

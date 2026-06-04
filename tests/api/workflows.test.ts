@@ -12,12 +12,15 @@ describe('listWorkflows', () => {
   it('normalises Record<id, config> (Mastra default shape)', async () => {
     const record = {
       weatherWorkflow: { name: 'Weather Workflow', description: 'Gets weather' },
-      searchWorkflow:  { name: 'Search Workflow' },
+      searchWorkflow: { name: 'Search Workflow' },
     }
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
     const result = await listWorkflows('tok')
     expect(result).toHaveLength(2)
-    expect(result.find(w => w.id === 'weatherWorkflow')).toMatchObject({ id: 'weatherWorkflow', name: 'Weather Workflow' })
+    expect(result.find(w => w.id === 'weatherWorkflow')).toMatchObject({
+      id: 'weatherWorkflow',
+      name: 'Weather Workflow',
+    })
   })
 
   it('handles plain array response', async () => {
@@ -58,7 +61,7 @@ describe('triggerWorkflow', () => {
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runId: 'r1' })))
     await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
     const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    expect(JSON.parse(opts.body).inputData).toEqual({ city: 'Hanoi' })
+    expect((JSON.parse(opts.body) as Record<string, unknown>).inputData).toEqual({ city: 'Hanoi' })
   })
 
   it('returns the full run result including runId, status, steps', async () => {
@@ -89,7 +92,9 @@ describe('listRuns', () => {
 // ─── getRun ───────────────────────────────────────────────────────────────────
 describe('getRun', () => {
   it('calls the correct path', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runId: 'r1', status: 'running', steps: {} })))
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runId: 'r1', status: 'running', steps: {} }))
+    )
     await getRun('wf1', 'r1', 'tok')
     const [path] = mockFetch.mock.calls[0] as [string, unknown, string]
     expect(path).toBe('/api/workflows/wf1/runs/r1')

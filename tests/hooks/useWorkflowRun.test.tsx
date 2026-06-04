@@ -1,12 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as WorkflowsModule from '../../src/api/workflows'
 import { useWorkflowRun } from '../../src/hooks/useWorkflowRun'
 
 // Partial mock — preserve TERMINAL_STATUSES from real module
-vi.mock('../../src/api/workflows', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../src/api/workflows')>()
+vi.mock('../../src/api/workflows', async importOriginal => {
+  const actual = await importOriginal<typeof WorkflowsModule>()
   return { ...actual, getRun: vi.fn() }
 })
 import { getRun } from '../../src/api/workflows'

@@ -13,7 +13,7 @@ export function useWorkflowRun(workflowId: string, runId: string | null) {
   return useQuery<WorkflowRun>({
     queryKey: ['workflow-run', workflowId, runId],
     enabled: isAuthenticated && !!runId,
-    refetchInterval: (query) => {
+    refetchInterval: query => {
       const status = query.state.data?.status
       if (status && TERMINAL_STATUSES.includes(status)) return false
       return 2_000

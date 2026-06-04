@@ -1,23 +1,26 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { describe, it, expect, vi } from 'vitest'
 import ProtectedRoute from '../../src/auth/ProtectedRoute'
 
 // ─── Mock @auth0/auth0-react ─────────────────────────────────────────────────
 const mockUseAuth0 = vi.fn()
 vi.mock('@auth0/auth0-react', () => ({
-  useAuth0: () => mockUseAuth0(),
+  useAuth0: () => mockUseAuth0() as unknown,
 }))
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function renderWithRouter(
   auth: { isAuthenticated: boolean; isLoading: boolean },
-  initialPath = '/protected',
+  initialPath = '/protected'
 ) {
   mockUseAuth0.mockReturnValue(auth)
 
   return render(
-    <MemoryRouter initialEntries={[initialPath]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter
+      initialEntries={[initialPath]}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         <Route path="/login" element={<div>Login Page</div>} />
         <Route
@@ -29,7 +32,7 @@ function renderWithRouter(
           }
         />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 

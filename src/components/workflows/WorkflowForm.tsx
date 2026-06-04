@@ -16,12 +16,12 @@ export default function WorkflowForm({ workflow, onSubmit, isSubmitting, error }
     e.preventDefault()
     setJsonError(null)
     try {
-      const parsed = JSON.parse(raw)
-      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+      const parsed: unknown = JSON.parse(raw)
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         setJsonError('Input must be a JSON object {}')
         return
       }
-      onSubmit(parsed)
+      onSubmit(parsed as Record<string, unknown>)
     } catch {
       setJsonError('Invalid JSON — please check your input')
     }
@@ -31,11 +31,15 @@ export default function WorkflowForm({ workflow, onSubmit, isSubmitting, error }
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div>
         <label className="mb-2 block text-xs font-semibold text-[var(--color-text-secondary)]">
-          Input Data <span className="font-normal text-[var(--color-text-muted)]">(JSON object)</span>
+          Input Data{' '}
+          <span className="font-normal text-[var(--color-text-muted)]">(JSON object)</span>
         </label>
         <textarea
           value={raw}
-          onChange={e => { setRaw(e.target.value); setJsonError(null) }}
+          onChange={e => {
+            setRaw(e.target.value)
+            setJsonError(null)
+          }}
           rows={8}
           spellCheck={false}
           className="
@@ -109,7 +113,18 @@ function SpinnerIcon() {
 
 function ErrorIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className="shrink-0"
+    >
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="8" x2="12" y2="12" />
       <line x1="12" y1="16" x2="12.01" y2="16" />

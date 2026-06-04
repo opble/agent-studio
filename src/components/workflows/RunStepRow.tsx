@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import StepStatusBadge from './StepStatusBadge'
 import type { WorkflowStepResult } from '../../api/workflows'
+import StepStatusBadge from './StepStatusBadge'
 
 interface Props {
   stepId: string
@@ -19,7 +19,7 @@ export default function RunStepRow({ stepId, step }: Props) {
         onClick={() => (hasOutput || hasError) && setExpanded(v => !v)}
         className={`
           flex w-full items-center gap-3 px-4 py-3 text-left
-          ${(hasOutput || hasError) ? 'cursor-pointer hover:bg-[var(--color-surface-overlay)]' : 'cursor-default'}
+          ${hasOutput || hasError ? 'cursor-pointer hover:bg-[var(--color-surface-overlay)]' : 'cursor-default'}
           transition-colors
         `}
       >
@@ -32,9 +32,7 @@ export default function RunStepRow({ stepId, step }: Props) {
             {duration(step.startedAt, step.completedAt)}
           </span>
         )}
-        {(hasOutput || hasError) && (
-          <ChevronIcon expanded={expanded} />
-        )}
+        {(hasOutput || hasError) && <ChevronIcon expanded={expanded} />}
       </button>
 
       {/* Expandable output */}
@@ -62,8 +60,14 @@ function duration(start: string, end: string) {
 function ChevronIcon({ expanded }: { expanded: boolean }) {
   return (
     <svg
-      width="14" height="14" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
       aria-hidden
     >

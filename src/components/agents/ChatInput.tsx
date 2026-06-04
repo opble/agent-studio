@@ -9,7 +9,14 @@ interface Props {
   placeholder?: string
 }
 
-export default function ChatInput({ value, onChange, onSend, onStop, isStreaming, placeholder }: Props) {
+export default function ChatInput({
+  value,
+  onChange,
+  onSend,
+  onStop,
+  isStreaming,
+  placeholder,
+}: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -27,12 +34,14 @@ export default function ChatInput({ value, onChange, onSend, onStop, isStreaming
 
   return (
     <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-raised)] p-3 md:p-4">
-      <div className="
+      <div
+        className="
         flex items-end gap-2.5 rounded-2xl border border-[var(--color-border)]
         bg-[var(--color-surface)] px-4 py-3
         focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/8
         shadow-sm transition-all duration-200
-      ">
+      "
+      >
         <textarea
           ref={textareaRef}
           rows={1}
@@ -87,7 +96,17 @@ export default function ChatInput({ value, onChange, onSend, onStop, isStreaming
 
 function SendIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>

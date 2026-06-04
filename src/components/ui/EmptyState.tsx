@@ -18,7 +18,9 @@ export default function EmptyState({ icon, title, description, action }: Props) 
       <div>
         <p className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</p>
         {description && (
-          <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-[var(--color-text-muted)]">{description}</p>
+          <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-[var(--color-text-muted)]">
+            {description}
+          </p>
         )}
       </div>
       {action && <div className="mt-1">{action}</div>}

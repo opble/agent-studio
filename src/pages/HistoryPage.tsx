@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { useWorkflows } from '../hooks/useWorkflows'
-import { useWorkflowRuns } from '../hooks/useWorkflowRuns'
-import RunListItem from '../components/workflows/RunListItem'
-import WorkflowListItem from '../components/workflows/WorkflowListItem'
+import type { Workflow } from '../api/workflows'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
-import type { Workflow } from '../api/workflows'
+import RunListItem from '../components/workflows/RunListItem'
+import WorkflowListItem from '../components/workflows/WorkflowListItem'
+import { useWorkflowRuns } from '../hooks/useWorkflowRuns'
+import { useWorkflows } from '../hooks/useWorkflows'
 
 export default function HistoryPage() {
   const { data: workflows, isLoading: loadingWorkflows } = useWorkflows()
@@ -32,10 +32,12 @@ export default function HistoryPage() {
   return (
     <div className="flex min-h-0 flex-1 gap-4 md:gap-5" style={{ height: 'calc(100dvh - 7rem)' }}>
       {/* Workflow selector */}
-      <aside className={`
+      <aside
+        className={`
         flex flex-col gap-1 overflow-y-auto
         ${selected ? 'hidden md:flex md:w-56 md:shrink-0' : 'flex w-full md:w-56 md:shrink-0'}
-      `}>
+      `}
+      >
         <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
           Workflows
         </p>
@@ -57,7 +59,9 @@ export default function HistoryPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-accent)] to-violet-600 text-xs font-bold text-white">
               {selected.name.slice(0, 2).toUpperCase()}
             </div>
-            <p className="text-sm font-semibold text-[var(--color-text-primary)]">{selected.name}</p>
+            <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+              {selected.name}
+            </p>
           </div>
 
           {/* Mobile back */}
@@ -132,7 +136,17 @@ function RunsList({ workflowId }: { workflowId: string }) {
 
 function HistoryIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="9" />
       <polyline points="12 7 12 12 15 15" />
     </svg>
@@ -141,7 +155,17 @@ function HistoryIcon() {
 
 function ChevronLeftIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <polyline points="15 18 9 12 15 6" />
     </svg>
   )

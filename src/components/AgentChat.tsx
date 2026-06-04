@@ -1,9 +1,9 @@
-import { useCallback, useRef, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useCallback, useRef, useState } from 'react'
 import { streamAgentGenerate } from '../api/agents'
 import type { AgentMessage } from '../api/agents'
-import ChatMessage from './agents/ChatMessage'
 import ChatInput from './agents/ChatInput'
+import ChatMessage from './agents/ChatMessage'
 import type { Message } from './agents/ChatMessage'
 import EmptyState from './ui/EmptyState'
 
@@ -35,7 +35,10 @@ export default function AgentChat({ agentId, agentName }: Props) {
 
     try {
       const token = await getAccessTokenSilently()
-      const history: AgentMessage[] = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }))
+      const history: AgentMessage[] = [...messages, userMsg].map(m => ({
+        role: m.role,
+        content: m.content,
+      }))
       const response = await streamAgentGenerate(agentId, { messages: history }, token)
 
       if (!response.body) throw new Error('No response body')
@@ -54,11 +57,13 @@ export default function AgentChat({ agentId, agentName }: Props) {
             const payload = line.slice(6).trim()
             if (payload === '[DONE]') continue
             try {
-              const parsed = JSON.parse(payload)
+              const parsed = JSON.parse(payload) as Record<string, unknown>
+              const choices = parsed.choices as Array<{ delta: { content?: string } }> | undefined
               accumulated +=
-                parsed?.text ??
-                parsed?.choices?.[0]?.delta?.content ??
-                parsed?.content ?? ''
+                (parsed.text as string | undefined) ??
+                choices?.[0]?.delta?.content ??
+                (parsed.content as string | undefined) ??
+                ''
             } catch {
               accumulated += payload
             }
@@ -101,7 +106,9 @@ export default function AgentChat({ agentId, agentName }: Props) {
             icon={<BotIcon />}
           />
         )}
-        {messages.map((msg, i) => <ChatMessage key={i} message={msg} />)}
+        {messages.map((msg, i) => (
+          <ChatMessage key={i} message={msg} />
+        ))}
         {error && (
           <div className="rounded-xl border border-[var(--color-danger)]/40 bg-red-50 dark:bg-red-950/20 px-4 py-3 text-sm text-[var(--color-danger)]">
             {error}
@@ -124,7 +131,17 @@ export default function AgentChat({ agentId, agentName }: Props) {
 
 function BotIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <rect x="3" y="11" width="18" height="10" rx="2" />
       <circle cx="12" cy="5" r="2" />
       <path d="M12 7v4" />

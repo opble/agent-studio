@@ -43,19 +43,21 @@ describe('listAgents', () => {
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
     const result = await listAgents('tok')
     expect(result).toHaveLength(2)
-    expect(result.find(a => a.id === 'weatherAgent')).toMatchObject({ id: 'weatherAgent', name: 'Weather Agent' })
-    expect(result.find(a => a.id === 'searchAgent')).toMatchObject({ id: 'searchAgent', name: 'Search Agent' })
+    expect(result.find(a => a.id === 'weatherAgent')).toMatchObject({
+      id: 'weatherAgent',
+      name: 'Weather Agent',
+    })
+    expect(result.find(a => a.id === 'searchAgent')).toMatchObject({
+      id: 'searchAgent',
+      name: 'Search Agent',
+    })
   })
 
   it('calls mastraFetch with correct path and GET method', async () => {
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([])))
     await listAgents('test-token')
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      '/api/agents',
-      { method: 'GET' },
-      'test-token',
-    )
+    expect(mockFetch).toHaveBeenCalledWith('/api/agents', { method: 'GET' }, 'test-token')
   })
 })
 
@@ -79,7 +81,7 @@ describe('streamAgentGenerate', () => {
     await streamAgentGenerate('a1', { messages }, 'tok')
 
     const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    const body = JSON.parse(opts.body)
+    const body = JSON.parse(opts.body) as Record<string, unknown>
     expect(body.messages).toEqual(messages)
     expect(body.stream).toBe(true)
   })
@@ -89,7 +91,7 @@ describe('streamAgentGenerate', () => {
     await streamAgentGenerate('a1', { messages: [] }, 'tok')
 
     const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    const body = JSON.parse(opts.body)
+    const body = JSON.parse(opts.body) as Record<string, unknown>
     expect(body.threadId).toBeUndefined()
     expect(body.resourceId).toBeUndefined()
   })
@@ -99,7 +101,7 @@ describe('streamAgentGenerate', () => {
     await streamAgentGenerate('a1', { messages: [], threadId: 't-1' }, 'tok')
 
     const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    expect(JSON.parse(opts.body).threadId).toBe('t-1')
+    expect((JSON.parse(opts.body) as Record<string, unknown>).threadId).toBe('t-1')
   })
 
   it('returns the raw Response', async () => {

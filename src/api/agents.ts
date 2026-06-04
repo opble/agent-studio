@@ -23,24 +23,27 @@ export interface GenerateOptions {
 
 // ─── API functions ────────────────────────────────────────────────────────────
 
-/** GET /api/agents — returns the list of all registered agents.
+/**
+ * GET /api/agents — returns the list of all registered agents.
  *
  * Mastra returns a Record<agentId, agentConfig> object.
  * We normalise all shapes (Record, plain array, {agents:[]}) into Agent[].
  */
 export async function listAgents(token: string): Promise<Agent[]> {
   const res = await mastraFetch('/api/agents', { method: 'GET' }, token)
-  const data = await res.json()
+  const data: unknown = await res.json()
 
   // Shape 1: plain array
-  if (Array.isArray(data)) return data
+  if (Array.isArray(data)) return data as Agent[]
 
-  // Shape 2: { agents: [...] }
-  if (Array.isArray(data?.agents)) return data.agents
-
-  // Shape 3 (Mastra default): Record<agentId, agentConfig>
   if (data && typeof data === 'object') {
-    return Object.entries(data).map(([id, config]) => ({
+    const obj = data as Record<string, unknown>
+
+    // Shape 2: { agents: [...] }
+    if (Array.isArray(obj.agents)) return obj.agents as Agent[]
+
+    // Shape 3 (Mastra default): Record<agentId, agentConfig>
+    return Object.entries(obj).map(([id, config]) => ({
       id,
       ...(config as Omit<Agent, 'id'>),
     }))
@@ -58,7 +61,7 @@ export async function listAgents(token: string): Promise<Agent[]> {
 export async function streamAgentGenerate(
   agentId: string,
   options: GenerateOptions,
-  token: string,
+  token: string
 ): Promise<Response> {
   return mastraFetch(
     `/api/agents/${agentId}/generate`,
@@ -71,6 +74,6 @@ export async function streamAgentGenerate(
         stream: true,
       }),
     },
-    token,
+    token
   )
 }

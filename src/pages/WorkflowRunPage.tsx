@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useWorkflowRun } from '../hooks/useWorkflowRun'
 import RunStatus from '../components/RunStatus'
 import Spinner from '../components/ui/Spinner'
+import { useWorkflowRun } from '../hooks/useWorkflowRun'
 
 export default function WorkflowRunPage() {
   const { workflowId = '', runId = '' } = useParams()
@@ -46,7 +46,17 @@ export default function WorkflowRunPage() {
 
 function ChevronIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <polyline points="9 18 15 12 9 6" />
     </svg>
   )

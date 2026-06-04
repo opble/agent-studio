@@ -17,7 +17,7 @@ export interface FetchOptions extends RequestInit {
 export async function mastraFetch(
   path: string,
   options: FetchOptions = {},
-  token: string,
+  token: string
 ): Promise<Response> {
   const { stream: _stream, ...fetchOptions } = options
 
@@ -33,9 +33,12 @@ export async function mastraFetch(
   if (!response.ok) {
     let message = `HTTP ${response.status}`
     try {
-      const body = await response.clone().json()
-      if (typeof body?.message === 'string') message = body.message
-      else if (typeof body?.error === 'string') message = body.error
+      const body: unknown = await response.clone().json()
+      if (body && typeof body === 'object') {
+        const b = body as Record<string, unknown>
+        if (typeof b.message === 'string') message = b.message
+        else if (typeof b.error === 'string') message = b.error
+      }
     } catch {
       // body not JSON — use status text
       message = response.statusText || message
@@ -50,7 +53,7 @@ export async function mastraFetch(
 export class ApiError extends Error {
   constructor(
     message: string,
-    public readonly status: number,
+    public readonly status: number
   ) {
     super(message)
     this.name = 'ApiError'

@@ -6,9 +6,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value },
-    removeItem: (key: string) => { delete store[key] },
-    clear: () => { store = {} },
+    setItem: (key: string, value: string) => {
+      store[key] = value
+    },
+    removeItem: (key: string) => {
+      delete store[key]
+    },
+    clear: () => {
+      store = {}
+    },
   }
 })()
 
@@ -50,7 +56,10 @@ describe('saveTheme', () => {
 })
 
 describe('applyTheme', () => {
-  beforeEach(() => { classList.add.mockClear(); classList.remove.mockClear() })
+  beforeEach(() => {
+    classList.add.mockClear()
+    classList.remove.mockClear()
+  })
 
   it('adds "dark" class for dark theme', () => {
     applyTheme('dark')

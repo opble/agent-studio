@@ -1,52 +1,62 @@
 /* ─── Light theme (default) ──────────────────────────────────────────────── */
 :root {
-  --color-surface:         #fafafa;
-  --color-surface-raised:  #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-raised: #ffffff;
   --color-surface-overlay: #f4f4f5;
-  --color-border:          #e4e4e7;
+  --color-border: #e4e4e7;
 
-  --color-text-primary:    #09090b;
-  --color-text-secondary:  #3f3f46;
-  --color-text-muted:      #71717a;
+  --color-text-primary: #09090b;
+  --color-text-secondary: #3f3f46;
+  --color-text-muted: #71717a;
 
-  --color-accent:          #6366f1;
-  --color-accent-hover:    #4f46e5;
-  --color-accent-subtle:   #eef2ff;
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-subtle: #eef2ff;
 
-  --color-success:         #22c55e;
-  --color-danger:          #ef4444;
-  --color-warning:         #f59e0b;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
 }
 
 /* ─── Dark theme ─────────────────────────────────────────────────────────── */
 .dark {
-  --color-surface:         #09090b;
-  --color-surface-raised:  #111113;
+  --color-surface: #09090b;
+  --color-surface-raised: #111113;
   --color-surface-overlay: #1c1c1f;
-  --color-border:          #27272a;
+  --color-border: #27272a;
 
-  --color-text-primary:    #fafafa;
-  --color-text-secondary:  #d4d4d8;
-  --color-text-muted:      #71717a;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #d4d4d8;
+  --color-text-muted: #71717a;
 
-  --color-accent:          #818cf8;
-  --color-accent-hover:    #6366f1;
-  --color-accent-subtle:   #1e1b4b;
+  --color-accent: #818cf8;
+  --color-accent-hover: #6366f1;
+  --color-accent-subtle: #1e1b4b;
 
-  --color-success:         #4ade80;
-  --color-danger:          #f87171;
-  --color-warning:         #fbbf24;
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;

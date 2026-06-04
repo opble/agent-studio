@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import StepStatusBadge from './StepStatusBadge'
 import type { WorkflowRun } from '../../api/workflows'
+import StepStatusBadge from './StepStatusBadge'
 
 interface Props {
   run: WorkflowRun
@@ -41,7 +41,18 @@ export default function RunListItem({ run, workflowId }: Props) {
 
 function ChevronIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--color-text-muted)] transition-transform group-hover:translate-x-0.5" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0 text-[var(--color-text-muted)] transition-transform group-hover:translate-x-0.5"
+      aria-hidden
+    >
       <polyline points="9 18 15 12 9 6" />
     </svg>
   )

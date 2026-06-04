@@ -26,7 +26,7 @@ export default function Auth0Provider({ children }: Props) {
         redirect_uri: window.location.origin,
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
       }}
-      onRedirectCallback={(appState) => {
+      onRedirectCallback={appState => {
         // After Auth0 redirects back, go to the page the user originally wanted
         navigate(appState?.returnTo ?? '/', { replace: true })
       }}

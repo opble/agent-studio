@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
-import Sidebar from './layout/Sidebar'
 import Header from './layout/Header'
 import MobileNav from './layout/MobileNav'
+import Sidebar from './layout/Sidebar'
 
 export default function Layout() {
   return (

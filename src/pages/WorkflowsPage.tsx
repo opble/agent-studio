@@ -1,13 +1,13 @@
+import { useAuth0 } from '@auth0/auth0-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
-import { useWorkflows } from '../hooks/useWorkflows'
 import { triggerWorkflow } from '../api/workflows'
-import WorkflowListItem from '../components/workflows/WorkflowListItem'
-import WorkflowForm from '../components/workflows/WorkflowForm'
+import type { Workflow } from '../api/workflows'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
-import type { Workflow } from '../api/workflows'
+import WorkflowForm from '../components/workflows/WorkflowForm'
+import WorkflowListItem from '../components/workflows/WorkflowListItem'
+import { useWorkflows } from '../hooks/useWorkflows'
 
 export default function WorkflowsPage() {
   const { data: workflows, isLoading, isError } = useWorkflows()
@@ -49,16 +49,24 @@ export default function WorkflowsPage() {
   }
 
   if (!workflows?.length) {
-    return <EmptyState icon={<WorkflowsIcon />} title="No workflows found" description="No workflows are registered on this Mastra server." />
+    return (
+      <EmptyState
+        icon={<WorkflowsIcon />}
+        title="No workflows found"
+        description="No workflows are registered on this Mastra server."
+      />
+    )
   }
 
   return (
     <div className="flex min-h-0 flex-1 gap-4 md:gap-5" style={{ height: 'calc(100dvh - 7rem)' }}>
       {/* Workflow list */}
-      <aside className={`
+      <aside
+        className={`
         flex flex-col gap-1 overflow-y-auto
         ${selected ? 'hidden md:flex md:w-56 md:shrink-0' : 'flex w-full md:w-56 md:shrink-0'}
-      `}>
+      `}
+      >
         <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
           {workflows.length} workflow{workflows.length !== 1 ? 's' : ''}
         </p>
@@ -67,7 +75,10 @@ export default function WorkflowsPage() {
             key={wf.id}
             workflow={wf}
             isActive={selected?.id === wf.id}
-            onClick={() => { setSelected(wf); setSubmitError(null) }}
+            onClick={() => {
+              setSelected(wf)
+              setSubmitError(null)
+            }}
           />
         ))}
       </aside>
@@ -81,9 +92,13 @@ export default function WorkflowsPage() {
               {selected.name.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">{selected.name}</p>
+              <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+                {selected.name}
+              </p>
               {selected.description && (
-                <p className="truncate text-xs text-[var(--color-text-muted)]">{selected.description}</p>
+                <p className="truncate text-xs text-[var(--color-text-muted)]">
+                  {selected.description}
+                </p>
               )}
             </div>
           </div>
@@ -115,7 +130,17 @@ export default function WorkflowsPage() {
 
 function WorkflowsIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <rect x="3" y="3" width="6" height="6" rx="1.5" />
       <rect x="15" y="3" width="6" height="6" rx="1.5" />
       <rect x="9" y="15" width="6" height="6" rx="1.5" />
@@ -127,7 +152,17 @@ function WorkflowsIcon() {
 
 function ChevronIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <polyline points="15 18 9 12 15 6" />
     </svg>
   )
