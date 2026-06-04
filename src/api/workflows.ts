@@ -9,9 +9,27 @@ export interface Workflow {
   steps?: Record<string, unknown>
 }
 
-export type WorkflowRunStatus = 'running' | 'completed' | 'failed' | 'suspended' | 'cancelled'
+// Mastra official status values (https://mastra.ai/docs/workflows/overview)
+export type WorkflowRunStatus =
+  | 'running'
+  | 'success'
+  | 'failed'
+  | 'suspended'
+  | 'paused'
+  | 'tripwire'
+  // legacy aliases some Mastra versions may still emit
+  | 'completed'
+  | 'cancelled'
 
-export const TERMINAL_STATUSES: WorkflowRunStatus[] = ['completed', 'failed', 'cancelled']
+// Terminal states after which polling must stop
+export const TERMINAL_STATUSES: WorkflowRunStatus[] = [
+  'success',
+  'failed',
+  'tripwire',
+  // keep legacy aliases so older Mastra deployments also stop polling
+  'completed',
+  'cancelled',
+]
 
 export interface WorkflowStepResult {
   status: WorkflowRunStatus

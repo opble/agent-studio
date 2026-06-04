@@ -46,7 +46,7 @@ export default function RunStatus({ run }: Props) {
       )}
 
       {/* Final result */}
-      {run.status === 'completed' && run.result !== undefined && (
+      {(run.status === 'success' || run.status === 'completed') && run.result !== undefined && (
         <div>
           <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
             Result

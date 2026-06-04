@@ -10,8 +10,9 @@ const config: Record<WorkflowRunStatus, { label: string; classes: string; icon: 
     classes: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
     icon: '⟳',
   },
-  completed: {
-    label: 'Completed',
+  // Mastra canonical success status
+  success: {
+    label: 'Success',
     classes: 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400',
     icon: '✓',
   },
@@ -24,6 +25,22 @@ const config: Record<WorkflowRunStatus, { label: string; classes: string; icon: 
     label: 'Suspended',
     classes: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
     icon: '⏸',
+  },
+  paused: {
+    label: 'Paused',
+    classes: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+    icon: '⏸',
+  },
+  tripwire: {
+    label: 'Tripwire',
+    classes: 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400',
+    icon: '⚡',
+  },
+  // legacy aliases
+  completed: {
+    label: 'Completed',
+    classes: 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400',
+    icon: '✓',
   },
   cancelled: {
     label: 'Cancelled',

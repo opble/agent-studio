@@ -161,12 +161,10 @@ Do not build: multi-user RBAC, multiple server connections, traces/observability
 
 ## Code Quality — Mandatory Enforcement
 
-**After every code change, you MUST run both lint and format before considering the task complete:**
+**After every code change, you MUST run fix before considering the task complete:**
 
 ```bash
-pnpm lint:fix   # auto-fix ESLint errors (import order, unused vars, etc.)
-pnpm format     # apply Prettier formatting
-pnpm lint       # confirm zero errors remain (warnings are OK)
+pnpm fix
 ```
 
 Rules enforced:
