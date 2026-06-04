@@ -5,6 +5,11 @@ interface Props {
 }
 
 const config: Record<WorkflowRunStatus, { label: string; classes: string; icon: string }> = {
+  pending: {
+    label: 'Pending',
+    classes: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400',
+    icon: '○',
+  },
   running: {
     label: 'Running',
     classes: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',

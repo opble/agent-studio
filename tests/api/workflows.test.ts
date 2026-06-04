@@ -82,27 +82,52 @@ describe('listWorkflows', () => {
 
 // ─── triggerWorkflow ──────────────────────────────────────────────────────────
 describe('triggerWorkflow', () => {
-  it('posts to the correct path', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runId: 'r1' })))
+  // Helper: mock both the create-run call and the start call
+  function mockTwoStep(runId = 'r1', workflowId?: string) {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runId, workflowId })) // create-run response
+    )
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ message: 'Workflow run started' })) // start response
+    )
+  }
+
+  it('calls create-run first', async () => {
+    mockTwoStep()
     await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
     const [path] = mockFetch.mock.calls[0] as [string, unknown, string]
-    expect(path).toBe('/api/workflows/wf1/start-async')
+    expect(path).toBe('/api/workflows/wf1/create-run')
   })
 
-  it('includes inputData in the body', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runId: 'r1' })))
+  it('calls start with runId as query param', async () => {
+    mockTwoStep('run-xyz')
     await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
-    const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
+    const [path] = mockFetch.mock.calls[1] as [string, unknown, string]
+    expect(path).toBe('/api/workflows/wf1/start?runId=run-xyz')
+  })
+
+  it('passes inputData in the start body', async () => {
+    mockTwoStep()
+    await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
+    const [, opts] = mockFetch.mock.calls[1] as [string, { body: string }, string]
     expect((JSON.parse(opts.body) as Record<string, unknown>).inputData).toEqual({ city: 'Hanoi' })
   })
 
-  it('returns the full run result including runId, status, steps', async () => {
-    const payload = { runId: 'run-abc', status: 'completed', result: { ok: true }, steps: {} }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(payload)))
+  it('returns runId from create-run response', async () => {
+    mockTwoStep('run-abc')
     const result = await triggerWorkflow('wf1', {}, 'tok')
     expect(result.runId).toBe('run-abc')
-    expect(result.status).toBe('completed')
-    expect(result.result).toEqual({ ok: true })
+  })
+
+  it('surfaces workflowId when present in create-run response', async () => {
+    mockTwoStep('r1', 'wf1')
+    const result = await triggerWorkflow('wf1', {}, 'tok')
+    expect(result.workflowId).toBe('wf1')
+  })
+
+  it('throws if create-run response has no runId', async () => {
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ status: 'pending' })))
+    await expect(triggerWorkflow('wf1', {}, 'tok')).rejects.toThrow()
   })
 })
 

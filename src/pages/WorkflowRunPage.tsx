@@ -2,10 +2,13 @@ import { Link, useParams } from 'react-router-dom'
 import RunStatus from '../components/RunStatus'
 import Spinner from '../components/ui/Spinner'
 import { useWorkflowRun } from '../hooks/useWorkflowRun'
+import { useWorkflows } from '../hooks/useWorkflows'
 
 export default function WorkflowRunPage() {
   const { workflowId = '', runId = '' } = useParams()
   const { data: run, isLoading, isError } = useWorkflowRun(workflowId, runId)
+  const { data: workflows } = useWorkflows()
+  const workflow = workflows?.find(w => w.id === workflowId) ?? null
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -43,7 +46,7 @@ export default function WorkflowRunPage() {
         </div>
       )}
 
-      {run && <RunStatus run={run} />}
+      {run && <RunStatus run={run} workflowId={workflowId} workflow={workflow} />}
     </div>
   )
 }

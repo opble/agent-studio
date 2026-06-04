@@ -88,7 +88,7 @@ export default function HistoryPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 md:p-5">
-            <RunsList workflowId={selected.id} />
+            <RunsList workflowId={selected.id} workflow={selected} />
           </div>
         </div>
       )}
@@ -98,7 +98,7 @@ export default function HistoryPage() {
 
 // ─── RunsList — isolated so it only mounts when a workflow is selected ────────
 
-function RunsList({ workflowId }: { workflowId: string }) {
+function RunsList({ workflowId, workflow }: { workflowId: string; workflow: Workflow }) {
   const { data: runs, isLoading, isError, refetch } = useWorkflowRuns(workflowId)
 
   if (isLoading) {
@@ -139,7 +139,7 @@ function RunsList({ workflowId }: { workflowId: string }) {
         {runs.length} run{runs.length !== 1 ? 's' : ''}
       </p>
       {runs.map(run => (
-        <RunListItem key={run.runId} run={run} workflowId={workflowId} />
+        <RunListItem key={run.runId} run={run} workflowId={workflowId} workflow={workflow} />
       ))}
     </div>
   )

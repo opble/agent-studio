@@ -4,6 +4,7 @@ import { mastraFetch } from './client'
 // ─── Shared primitive schemas ─────────────────────────────────────────────────
 
 export const WorkflowRunStatusSchema = z.enum([
+  'pending',
   'running',
   'success',
   'failed',
@@ -97,9 +98,6 @@ export const TriggerRunResultSchema = z.object({
   runId: z.string(),
   /** Mastra echoes back the workflowId; use this (not the locally-held selected.id) for navigation */
   workflowId: z.string().optional(),
-  status: WorkflowRunStatusSchema.optional(),
-  result: z.unknown().optional(),
-  steps: z.record(z.string(), WorkflowStepResultSchema).optional(),
 })
 export type TriggerRunResult = z.infer<typeof TriggerRunResultSchema>
 
@@ -219,25 +217,74 @@ function normaliseWorkflowArray(arr: unknown[]): Workflow[] {
 }
 
 /**
- * POST /api/workflows/:workflowId/start-async
+ * Triggers a workflow run using the two-step Mastra pattern:
+ *   1. POST /create-run          → { runId }  (creates a pending run)
+ *   2. POST /start?runId=<id>    → { message } (fires the run async, returns immediately)
  *
- * Triggers a workflow run and waits for the result.
- * Returns the full run result including runId, status, steps, and result.
+ * We navigate to the run page after step 1 so the user sees progress in real time.
+ * parse() on step 1 throws if runId is absent — better a hard error than /runs/undefined.
  */
 export async function triggerWorkflow(
   workflowId: string,
   inputData: Record<string, unknown>,
   token: string
 ): Promise<TriggerRunResult> {
-  const res = await mastraFetch(
-    `/api/workflows/${workflowId}/start-async`,
+  // Step 1: create the pending run and get its id
+  const createRes = await mastraFetch(
+    `/api/workflows/${workflowId}/create-run`,
+    { method: 'POST' },
+    token
+  )
+  const { runId, workflowId: echoedId } = TriggerRunResultSchema.parse(await createRes.json())
+
+  // Step 2: start the run asynchronously (fire-and-forget from the server's perspective)
+  await mastraFetch(
+    `/api/workflows/${workflowId}/start?runId=${encodeURIComponent(runId)}`,
     {
       method: 'POST',
       body: JSON.stringify({ inputData }),
     },
     token
   )
-  return res.json() as Promise<TriggerRunResult>
+
+  return { runId, workflowId: echoedId }
+}
+
+/**
+ * POST /api/workflows/:workflowId/start?runId=<id>
+ * Starts a pending run asynchronously (fire-and-forget on the server).
+ * inputData is the workflow input payload captured at create-run time.
+ */
+export async function startRun(
+  workflowId: string,
+  runId: string,
+  inputData: Record<string, unknown>,
+  token: string
+): Promise<void> {
+  await mastraFetch(
+    `/api/workflows/${workflowId}/start?runId=${encodeURIComponent(runId)}`,
+    { method: 'POST', body: JSON.stringify({ inputData }) },
+    token
+  )
+}
+
+/**
+ * POST /api/workflows/:workflowId/resume?runId=<id>
+ * Resumes a suspended or paused run asynchronously.
+ * step and resumeData are optional — Mastra resumes from the current suspension point.
+ */
+export async function resumeRun(
+  workflowId: string,
+  runId: string,
+  token: string,
+  step?: string,
+  resumeData?: unknown
+): Promise<void> {
+  await mastraFetch(
+    `/api/workflows/${workflowId}/resume?runId=${encodeURIComponent(runId)}`,
+    { method: 'POST', body: JSON.stringify({ step, resumeData }) },
+    token
+  )
 }
 
 /**
