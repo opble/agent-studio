@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useQuery } from '@tanstack/react-query'
-import { getRun, TERMINAL_STATUSES } from '../api/workflows'
 import type { WorkflowRun } from '../api/workflows'
+import { getRun, TERMINAL_STATUSES } from '../api/workflows'
 
 /**
  * Polls GET /api/workflows/:workflowId/runs/:runId every 2 seconds.

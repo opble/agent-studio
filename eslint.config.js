@@ -50,14 +50,6 @@ export default tseslint.config(
       ...jsxA11y.configs.recommended.rules,
 
       // ── Import order ───────────────────────────────────────────────────────
-      'import/order': [
-        'warn',
-        {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-          'newlines-between': 'never',
-          alphabetize: { order: 'asc', caseInsensitive: true },
-        },
-      ],
       'import/no-duplicates': 'error',
 
       // ── TypeScript ─────────────────────────────────────────────────────────
@@ -72,4 +64,5 @@ export default tseslint.config(
       'prettier/prettier': 'error',
     },
   },
+
 )

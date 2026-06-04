@@ -1,10 +1,10 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCallback, useRef, useState } from 'react'
-import { streamAgentGenerate } from '../api/agents'
 import type { AgentMessage } from '../api/agents'
+import { streamAgentGenerate } from '../api/agents'
 import ChatInput from './agents/ChatInput'
-import ChatMessage from './agents/ChatMessage'
 import type { Message } from './agents/ChatMessage'
+import ChatMessage from './agents/ChatMessage'
 import EmptyState from './ui/EmptyState'
 
 interface Props {

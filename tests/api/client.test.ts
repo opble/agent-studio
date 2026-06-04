@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mastraFetch, ApiError } from '../../src/api/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ApiError, mastraFetch } from '../../src/api/client'
 
 // ─── fetch mock ──────────────────────────────────────────────────────────────
 const fetchMock = vi.fn()
@@ -22,7 +22,9 @@ describe('mastraFetch', () => {
     fetchMock.mockReset()
     vi.stubEnv('VITE_MASTRA_API_URL', 'https://api.example.com')
   })
-  afterEach(() => vi.unstubAllEnvs())
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
 
   it('calls fetch with the correct URL and Bearer token', async () => {
     mockOk()

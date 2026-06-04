@@ -1,15 +1,15 @@
+import { useAuth0 } from '@auth0/auth0-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mastraFetch } from '../../src/api/client'
 import { useHealthCheck } from '../../src/hooks/useHealthCheck'
 
 vi.mock('../../src/api/client', () => ({ mastraFetch: vi.fn() }))
-import { mastraFetch } from '../../src/api/client'
 const mockFetch = mastraFetch as ReturnType<typeof vi.fn>
 
 vi.mock('@auth0/auth0-react', () => ({ useAuth0: vi.fn() }))
-import { useAuth0 } from '@auth0/auth0-react'
 const mockUseAuth0 = useAuth0 as ReturnType<typeof vi.fn>
 
 const mockGetToken = vi.fn().mockResolvedValue('token')

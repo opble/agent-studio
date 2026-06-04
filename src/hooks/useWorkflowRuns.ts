@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useQuery } from '@tanstack/react-query'
-import { listRuns } from '../api/workflows'
 import type { WorkflowRun } from '../api/workflows'
+import { listRuns } from '../api/workflows'
 
 /** Fetches all runs for a given workflow. Only runs when workflowId is provided. */
 export function useWorkflowRuns(workflowId: string | null) {

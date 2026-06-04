@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getSavedTheme, saveTheme, applyTheme, toggleTheme } from '../../src/utils/theme'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { applyTheme, getSavedTheme, saveTheme, toggleTheme } from '../../src/utils/theme'
 
 // ─── localStorage mock ──────────────────────────────────────────────────────
 const localStorageMock = (() => {

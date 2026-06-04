@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { listWorkflows, triggerWorkflow, listRuns, getRun } from '../../src/api/workflows'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mastraFetch } from '../../src/api/client'
+import { getRun, listRuns, listWorkflows, triggerWorkflow } from '../../src/api/workflows'
 
 vi.mock('../../src/api/client', () => ({ mastraFetch: vi.fn() }))
-import { mastraFetch } from '../../src/api/client'
 const mockFetch = mastraFetch as ReturnType<typeof vi.fn>
 
 beforeEach(() => mockFetch.mockReset())

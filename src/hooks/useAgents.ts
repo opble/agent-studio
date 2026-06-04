@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useQuery } from '@tanstack/react-query'
-import { listAgents } from '../api/agents'
 import type { Agent } from '../api/agents'
+import { listAgents } from '../api/agents'
 
 export function useAgents() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0()

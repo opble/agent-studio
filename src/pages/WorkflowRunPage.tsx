@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import RunStatus from '../components/RunStatus'
 import Spinner from '../components/ui/Spinner'
 import { useWorkflowRun } from '../hooks/useWorkflowRun'

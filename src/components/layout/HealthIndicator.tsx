@@ -1,5 +1,5 @@
-import { useHealthCheck } from '../../hooks/useHealthCheck'
 import type { HealthStatus } from '../../hooks/useHealthCheck'
+import { useHealthCheck } from '../../hooks/useHealthCheck'
 
 const labels: Record<HealthStatus, string> = {
   checking: 'Connecting…',
