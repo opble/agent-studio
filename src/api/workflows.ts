@@ -27,11 +27,31 @@ export const TERMINAL_STATUSES: WorkflowRunStatus[] = [
 
 // ─── Exported domain schemas (source of truth for TypeScript types) ──────────
 
+// JSON Schema draft-07 subset — describes individual input properties
+export const JsonSchemaPropertySchema = z.object({
+  type: z.enum(['string', 'number', 'integer', 'boolean', 'array', 'object']),
+  description: z.string().optional(),
+  enum: z.array(z.unknown()).optional(),
+  default: z.unknown().optional(),
+})
+export type JsonSchemaProperty = z.infer<typeof JsonSchemaPropertySchema>
+
+// JSON Schema draft-07 subset — top-level object schema for workflow input
+export const JsonSchemaObjectSchema = z.object({
+  type: z.literal('object'),
+  properties: z.record(z.string(), JsonSchemaPropertySchema),
+  required: z.array(z.string()).optional(),
+  additionalProperties: z.boolean().optional(),
+})
+export type JsonSchemaObject = z.infer<typeof JsonSchemaObjectSchema>
+
 export const WorkflowSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
   steps: z.record(z.string(), z.unknown()).optional(),
+  /** Parsed workflow-level input schema (from the raw serialised JSON string in the API) */
+  inputSchema: JsonSchemaObjectSchema.optional(),
 })
 export type Workflow = z.infer<typeof WorkflowSchema>
 
@@ -155,12 +175,34 @@ export async function listWorkflows(token: string): Promise<Workflow[]> {
 
     // Mastra default: Record<workflowId, config>
     // Spread THEN set id so a stale id field in config cannot override the map key.
-    return Object.entries(obj).map(([key, config]) => ({
-      ...(config as Omit<Workflow, 'id'>),
-      id: (config as Workflow).id ?? key,
-    }))
+    return Object.entries(obj).map(([key, config]) => {
+      const c = config as Record<string, unknown>
+      return {
+        ...(c as Omit<Workflow, 'id' | 'inputSchema'>),
+        id: (c.id as string | undefined) ?? key,
+        name: (c.name as string | undefined) ?? key,
+        inputSchema: parseInputSchema(c.inputSchema),
+      }
+    })
   }
   return []
+}
+
+/**
+ * Parses the raw `inputSchema` value from the Mastra API.
+ * The API serialises it as a JSON string wrapping the real schema at `.json`:
+ *   "{\"json\":{\"type\":\"object\",\"properties\":{...}}}"
+ * Returns the validated JsonSchemaObject or undefined if parsing fails.
+ */
+function parseInputSchema(raw: unknown): JsonSchemaObject | undefined {
+  if (typeof raw !== 'string') return undefined
+  try {
+    const parsed = JSON.parse(raw) as { json?: unknown }
+    const result = JsonSchemaObjectSchema.safeParse(parsed.json)
+    return result.success ? result.data : undefined
+  } catch {
+    return undefined
+  }
 }
 
 /** Ensures every workflow in a plain array has an id field. */
@@ -171,6 +213,7 @@ function normaliseWorkflowArray(arr: unknown[]): Workflow[] {
       ...wf,
       id: (wf.id ?? wf.workflowId ?? String(i)) as string,
       name: wf.name ?? wf.id ?? 'Workflow',
+      inputSchema: parseInputSchema(wf.inputSchema),
     }
   })
 }

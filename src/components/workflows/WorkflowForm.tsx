@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Workflow } from '../../api/workflows'
+import SchemaForm from './SchemaForm'
 
 interface Props {
   workflow: Workflow
@@ -8,7 +9,42 @@ interface Props {
   error?: string | null
 }
 
+/**
+ * Routes to SchemaForm (typed fields) when the workflow exposes a parsed
+ * inputSchema, otherwise falls back to the raw JSON textarea.
+ */
 export default function WorkflowForm({ workflow, onSubmit, isSubmitting, error }: Props) {
+  if (workflow.inputSchema) {
+    return (
+      <SchemaForm
+        schema={workflow.inputSchema}
+        workflowName={workflow.name}
+        onSubmit={onSubmit}
+        isSubmitting={isSubmitting}
+        error={error}
+      />
+    )
+  }
+  return (
+    <JsonForm
+      workflowName={workflow.name}
+      onSubmit={onSubmit}
+      isSubmitting={isSubmitting}
+      error={error}
+    />
+  )
+}
+
+// ─── Fallback: raw JSON textarea ──────────────────────────────────────────────
+
+interface JsonFormProps {
+  workflowName: string
+  onSubmit: (inputData: Record<string, unknown>) => void
+  isSubmitting: boolean
+  error?: string | null
+}
+
+function JsonForm({ workflowName, onSubmit, isSubmitting, error }: JsonFormProps) {
   const [raw, setRaw] = useState('{}')
   const [jsonError, setJsonError] = useState<string | null>(null)
 
@@ -86,7 +122,7 @@ export default function WorkflowForm({ workflow, onSubmit, isSubmitting, error }
         ) : (
           <>
             <PlayIcon />
-            Run {workflow.name}
+            Run {workflowName}
           </>
         )}
       </button>

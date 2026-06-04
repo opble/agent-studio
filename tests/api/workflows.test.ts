@@ -46,6 +46,38 @@ describe('listWorkflows', () => {
     await listWorkflows('tok')
     expect(mockFetch).toHaveBeenCalledWith('/api/workflows', { method: 'GET' }, 'tok')
   })
+
+  it('parses inputSchema string and attaches it to the workflow (Record shape)', async () => {
+    const rawSchema = JSON.stringify({
+      json: {
+        type: 'object',
+        properties: { city: { type: 'string', description: 'The city' } },
+        required: ['city'],
+      },
+    })
+    const record = { weatherWorkflow: { name: 'Weather', inputSchema: rawSchema } }
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    const [wf] = await listWorkflows('tok')
+    expect(wf.inputSchema).toMatchObject({
+      type: 'object',
+      properties: { city: { type: 'string', description: 'The city' } },
+      required: ['city'],
+    })
+  })
+
+  it('silently ignores a malformed inputSchema string', async () => {
+    const record = { w1: { name: 'W1', inputSchema: 'not-valid-json' } }
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    const [wf] = await listWorkflows('tok')
+    expect(wf.inputSchema).toBeUndefined()
+  })
+
+  it('returns undefined inputSchema when property is absent', async () => {
+    const record = { w1: { name: 'W1' } }
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    const [wf] = await listWorkflows('tok')
+    expect(wf.inputSchema).toBeUndefined()
+  })
 })
 
 // ─── triggerWorkflow ──────────────────────────────────────────────────────────
