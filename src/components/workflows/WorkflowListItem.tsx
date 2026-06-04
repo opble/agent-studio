@@ -18,29 +18,29 @@ export default function WorkflowListItem({ workflow, isActive, onClick }: Props)
     <button
       onClick={onClick}
       className={`
-        w-full rounded-xl px-3 py-3 text-left transition-all border-l-2
+        group w-full rounded-xl px-3 py-2.5 text-left transition-all duration-150
         ${isActive
-          ? 'bg-[var(--color-accent-subtle)] border-[var(--color-accent)]'
-          : 'border-transparent hover:bg-[var(--color-surface-overlay)]'
+          ? 'bg-[var(--color-accent-subtle)] ring-1 ring-[var(--color-accent)]/20'
+          : 'hover:bg-[var(--color-surface-overlay)]'
         }
       `}
     >
       <div className="flex items-center gap-3">
         <div className={`
-          flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold
+          flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all
           ${isActive
-            ? 'bg-gradient-to-br from-[var(--color-accent)] to-violet-600 text-white'
-            : 'bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)]'
+            ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-500/20'
+            : 'bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] group-hover:bg-[var(--color-border)]'
           }
         `}>
           {initials}
         </div>
         <div className="min-w-0">
-          <p className={`truncate text-sm font-semibold ${isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-primary)]'}`}>
+          <p className={`truncate text-sm font-semibold leading-tight ${isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-primary)]'}`}>
             {workflow.name}
           </p>
           {workflow.description && (
-            <p className="truncate text-[11px] text-[var(--color-text-muted)]">
+            <p className="mt-0.5 truncate text-[11px] leading-none text-[var(--color-text-muted)]">
               {workflow.description}
             </p>
           )}

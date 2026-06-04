@@ -26,12 +26,12 @@ export default function ChatInput({ value, onChange, onSend, onStop, isStreaming
   }
 
   return (
-    <div className="border-t border-[var(--color-border)] p-3 md:p-4">
+    <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-raised)] p-3 md:p-4">
       <div className="
-        flex items-end gap-2 rounded-2xl border border-[var(--color-border)]
-        bg-[var(--color-surface-raised)] px-3 py-2.5
-        focus-within:border-[var(--color-accent)] focus-within:ring-2 focus-within:ring-[var(--color-accent)]/10
-        transition-all
+        flex items-end gap-2.5 rounded-2xl border border-[var(--color-border)]
+        bg-[var(--color-surface)] px-4 py-3
+        focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/8
+        shadow-sm transition-all duration-200
       ">
         <textarea
           ref={textareaRef}
@@ -68,17 +68,18 @@ export default function ChatInput({ value, onChange, onSend, onStop, isStreaming
             title="Send"
             className="
               flex h-8 w-8 shrink-0 items-center justify-center rounded-xl
-              bg-gradient-to-br from-[var(--color-accent)] to-violet-600 text-white shadow-sm
-              hover:opacity-90 transition-opacity
-              disabled:opacity-30 disabled:cursor-not-allowed
+              bg-gradient-to-br from-indigo-500 to-violet-600 text-white
+              shadow-md shadow-indigo-500/25
+              hover:opacity-90 active:scale-95 transition-all duration-150
+              disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none
             "
           >
             <SendIcon />
           </button>
         )}
       </div>
-      <p className="mt-1.5 text-center text-[10px] text-[var(--color-text-muted)]">
-        Shift+Enter for new line
+      <p className="mt-2 text-center text-[10px] text-[var(--color-text-muted)]">
+        <kbd className="font-mono">Shift+Enter</kbd> for new line
       </p>
     </div>
   )
@@ -86,7 +87,7 @@ export default function ChatInput({ value, onChange, onSend, onStop, isStreaming
 
 function SendIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
@@ -95,8 +96,8 @@ function SendIcon() {
 
 function StopIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <rect x="4" y="4" width="16" height="16" rx="2" />
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <rect x="4" y="4" width="16" height="16" rx="2.5" />
     </svg>
   )
 }

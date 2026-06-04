@@ -15,17 +15,23 @@ export default function NavLink({ to, icon, label, compact = false }: Props) {
       to={to}
       className={({ isActive }) =>
         compact
-          ? `flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-medium transition-colors rounded-lg
-             ${isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'}`
-          : `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors
+          ? `flex flex-col items-center gap-1 px-4 py-2.5 text-[10px] font-semibold tracking-wide transition-colors rounded-lg
+             ${isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}`
+          : `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
              ${isActive
                ? 'bg-[var(--color-accent-subtle)] text-[var(--color-accent)]'
                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-overlay)] hover:text-[var(--color-text-primary)]'
              }`
       }
     >
-      <span className={compact ? 'text-[18px]' : 'shrink-0'}>{icon}</span>
-      <span>{label}</span>
+      {({ isActive }) => (
+        <>
+          <span className={`shrink-0 transition-transform ${!compact && isActive ? 'scale-110' : ''}`}>
+            {icon}
+          </span>
+          <span>{label}</span>
+        </>
+      )}
     </RouterNavLink>
   )
 }

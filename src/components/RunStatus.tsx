@@ -14,14 +14,14 @@ export default function RunStatus({ run }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Run summary bar */}
-      <div className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-4 py-3">
+      {/* Run summary */}
+      <div className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-4 py-3.5 shadow-sm">
         <div className="flex items-center gap-2">
           {!isTerminal && <Spinner size="sm" />}
           <StepStatusBadge status={run.status} />
         </div>
         <span className="text-xs text-[var(--color-text-muted)]">
-          Run <span className="font-mono">{run.runId.slice(0, 8)}…</span>
+          Run <span className="font-mono text-[var(--color-text-secondary)]">{run.runId.slice(0, 8)}…</span>
         </span>
         {run.updatedAt && (
           <span className="ml-auto text-xs text-[var(--color-text-muted)]">
@@ -45,10 +45,10 @@ export default function RunStatus({ run }: Props) {
       {/* Final result */}
       {run.status === 'completed' && run.result !== undefined && (
         <div>
-          <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
+          <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
             Result
           </p>
-          <pre className="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-4 py-3 font-mono text-xs text-[var(--color-text-secondary)] whitespace-pre-wrap break-words">
+          <pre className="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-4 py-4 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-wrap break-words shadow-sm">
             {JSON.stringify(run.result, null, 2)}
           </pre>
         </div>
@@ -56,7 +56,7 @@ export default function RunStatus({ run }: Props) {
 
       {/* Error */}
       {run.status === 'failed' && run.error && (
-        <div className="rounded-xl border border-[var(--color-danger)]/40 bg-red-50 dark:bg-red-950/20 px-4 py-3 font-mono text-sm text-[var(--color-danger)]">
+        <div className="rounded-xl border border-[var(--color-danger)]/30 bg-red-50 dark:bg-red-950/20 px-4 py-3 font-mono text-sm text-[var(--color-danger)]">
           {run.error}
         </div>
       )}

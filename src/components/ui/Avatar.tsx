@@ -29,9 +29,9 @@ export default function Avatar({ src, name, size = 'sm' }: Props) {
   return (
     <div
       className={`
-        ${sizes[size]} shrink-0 flex items-center justify-center rounded-full font-semibold
-        bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)]
-        text-white
+        ${sizes[size]} shrink-0 flex items-center justify-center rounded-full font-bold
+        bg-gradient-to-br from-indigo-500 to-violet-600
+        text-white shadow-md shadow-indigo-500/20
       `}
     >
       {initials}

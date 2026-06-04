@@ -1,13 +1,13 @@
 /* ─── Light theme (default) ──────────────────────────────────────────────── */
 :root {
-  --color-surface:         #ffffff;
-  --color-surface-raised:  #f9fafb;
-  --color-surface-overlay: #f3f4f6;
-  --color-border:          #e5e7eb;
+  --color-surface:         #fafafa;
+  --color-surface-raised:  #ffffff;
+  --color-surface-overlay: #f4f4f5;
+  --color-border:          #e4e4e7;
 
-  --color-text-primary:    #111827;
-  --color-text-secondary:  #374151;
-  --color-text-muted:      #6b7280;
+  --color-text-primary:    #09090b;
+  --color-text-secondary:  #3f3f46;
+  --color-text-muted:      #71717a;
 
   --color-accent:          #6366f1;
   --color-accent-hover:    #4f46e5;
@@ -20,14 +20,14 @@
 
 /* ─── Dark theme ─────────────────────────────────────────────────────────── */
 .dark {
-  --color-surface:         #0f172a;
-  --color-surface-raised:  #1e293b;
-  --color-surface-overlay: #334155;
-  --color-border:          #334155;
+  --color-surface:         #09090b;
+  --color-surface-raised:  #111113;
+  --color-surface-overlay: #1c1c1f;
+  --color-border:          #27272a;
 
-  --color-text-primary:    #f1f5f9;
-  --color-text-secondary:  #cbd5e1;
-  --color-text-muted:      #94a3b8;
+  --color-text-primary:    #fafafa;
+  --color-text-secondary:  #d4d4d8;
+  --color-text-muted:      #71717a;
 
   --color-accent:          #818cf8;
   --color-accent-hover:    #6366f1;
@@ -50,4 +50,21 @@ body {
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }

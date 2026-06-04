@@ -5,8 +5,8 @@ export default function MobileNav() {
     <nav className="
       fixed bottom-0 left-0 right-0 z-40
       flex items-center justify-around
-      border-t border-[var(--color-border)] bg-[var(--color-surface-raised)]
-      px-2 pb-safe
+      border-t border-[var(--color-border)] bg-[var(--color-surface-raised)]/90
+      backdrop-blur-md px-2 pb-safe
       md:hidden
     ">
       <NavLink to="/agents" icon={<AgentsIcon />} label="Agents" compact />
