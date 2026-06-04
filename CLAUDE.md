@@ -17,11 +17,38 @@ agent-studio is an open-source, self-hosted private studio for Mastra-based agen
 
 - This is a **pure static SPA** — no backend, no SSR, no server-side code
 - Never use `localStorage` or `sessionStorage` for tokens — Auth0 handles token storage in memory
+- `localStorage` is allowed **only** for UI preferences (e.g. theme key `agent-studio-theme`)
 - All Mastra API calls go through `src/api/client.ts` which injects the Bearer token
 - Never import the Mastra SDK — call the REST API directly via fetch
-- Keep components small and focused — extract hooks for all data fetching
 - All environment variables must be prefixed with `VITE_`
 - Use `pnpm` as the package manager
+
+## Component Design Rules
+
+- **One responsibility per file.** A component file does one thing. If it does two things, split it.
+- **Max ~150 lines per component file** (excluding types/icons). Extract sub-components when approaching this limit.
+- **No logic in pages.** Pages compose components; they don't contain business logic. All data fetching lives in hooks.
+- **Shared UI atoms** live in `src/components/ui/` (e.g. `Spinner`, `EmptyState`, `Avatar`, `Badge`).
+- **Feature components** live in `src/components/<feature>/` (e.g. `src/components/agents/`, `src/components/workflows/`).
+- **Layout components** live in `src/components/layout/` (e.g. `Sidebar`, `Header`, `MobileNav`).
+- Extract hooks for **all** data fetching and non-trivial state — never fetch inside a component body.
+
+## Mobile-First Design Rules
+
+- **Design mobile-first**, then enhance for larger screens using Tailwind's `md:` / `lg:` prefixes.
+- **Navigation:** bottom tab bar on mobile (`< md`), sidebar on desktop (`md+`).
+- **Touch targets:** minimum 44×44px for all interactive elements.
+- **No horizontal overflow** — every layout must be verified at 375px viewport width.
+- **Readable text:** minimum `text-sm` (14px) for body; `text-xs` (12px) only for labels/metadata.
+- **Spacing:** prefer `p-4` / `gap-4` on mobile, scale up with `md:p-6` / `md:gap-6` on desktop.
+- Test every new page/component at 375px (mobile) and 1280px (desktop) widths.
+
+## Testing
+
+- Test runner: **Vitest** with `jsdom` environment
+- Every logic function in `src/api/`, `src/hooks/`, and `src/utils/` **must** have a corresponding unit test under `tests/` mirroring the same path (e.g. `src/utils/theme.ts` → `tests/utils/theme.test.ts`)
+- Components are kept logic-light; test them only when they contain non-trivial logic
+- Run tests with `pnpm test`; all tests must pass before merging
 
 ## Environment Variables
 
@@ -72,7 +99,7 @@ POST /api/workflows/:workflowId/execute        Trigger a workflow run
 GET  /api/workflows/:workflowId/runs           List runs for a workflow
 GET  /api/workflows/:workflowId/runs/:runId    Get run status + step results
 
-GET  /api/system/status                        Health check
+GET  /api/agents                               Health probe (Mastra has no dedicated status endpoint)
 ```
 
 ## File Structure

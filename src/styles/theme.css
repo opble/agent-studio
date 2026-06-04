@@ -1,0 +1,53 @@
+/* ─── Light theme (default) ──────────────────────────────────────────────── */
+:root {
+  --color-surface:         #ffffff;
+  --color-surface-raised:  #f9fafb;
+  --color-surface-overlay: #f3f4f6;
+  --color-border:          #e5e7eb;
+
+  --color-text-primary:    #111827;
+  --color-text-secondary:  #374151;
+  --color-text-muted:      #6b7280;
+
+  --color-accent:          #6366f1;
+  --color-accent-hover:    #4f46e5;
+  --color-accent-subtle:   #eef2ff;
+
+  --color-success:         #22c55e;
+  --color-danger:          #ef4444;
+  --color-warning:         #f59e0b;
+}
+
+/* ─── Dark theme ─────────────────────────────────────────────────────────── */
+.dark {
+  --color-surface:         #0f172a;
+  --color-surface-raised:  #1e293b;
+  --color-surface-overlay: #334155;
+  --color-border:          #334155;
+
+  --color-text-primary:    #f1f5f9;
+  --color-text-secondary:  #cbd5e1;
+  --color-text-muted:      #94a3b8;
+
+  --color-accent:          #818cf8;
+  --color-accent-hover:    #6366f1;
+  --color-accent-subtle:   #1e1b4b;
+
+  --color-success:         #4ade80;
+  --color-danger:          #f87171;
+  --color-warning:         #fbbf24;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}

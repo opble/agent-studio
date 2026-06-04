@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.env.local
+coverage
+
+# local agent
+MEMORY.md
+.memory/
+.claude/
+.agent/
