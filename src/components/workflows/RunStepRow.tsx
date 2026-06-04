@@ -28,9 +28,9 @@ export default function RunStepRow({ stepId, step }: Props) {
         <span className="flex-1 truncate font-mono text-sm font-medium text-[var(--color-text-primary)]">
           {stepId}
         </span>
-        {step.completedAt && step.startedAt && (
+        {step.endedAt && step.startedAt && (
           <span className="shrink-0 text-[11px] text-[var(--color-text-muted)]">
-            {duration(step.startedAt, step.completedAt)}
+            {duration(step.startedAt, step.endedAt)}
           </span>
         )}
         {(hasOutput || hasError) && <ChevronIcon expanded={expanded} />}
@@ -50,8 +50,8 @@ export default function RunStepRow({ stepId, step }: Props) {
   )
 }
 
-function duration(start: string, end: string) {
-  const ms = new Date(end).getTime() - new Date(start).getTime()
+function duration(start: number, end: number) {
+  const ms = end - start
   if (ms < 1000) return `${ms}ms`
   return `${(ms / 1000).toFixed(1)}s`
 }

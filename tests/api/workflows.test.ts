@@ -75,17 +75,104 @@ describe('triggerWorkflow', () => {
 })
 
 // ─── listRuns ─────────────────────────────────────────────────────────────────
+
+/** Builds a realistic snapshot-wrapped run item as returned by Mastra list endpoint */
+function makeSnapshotRun(overrides: Record<string, unknown> = {}) {
+  return {
+    runId: 'r1',
+    workflowName: 'weather-workflow',
+    createdAt: '2026-06-04T05:29:28.669Z',
+    updatedAt: '2026-06-04T05:29:28.669Z',
+    snapshot: {
+      status: 'success',
+      result: { activities: 'plan text' },
+      serializedStepGraph: [
+        { type: 'step', step: { id: 'fetch-weather', canSuspend: false } },
+        { type: 'step', step: { id: 'plan-activities', canSuspend: false } },
+      ],
+      context: {
+        input: { city: 'ho chi minh' },
+        'fetch-weather': {
+          status: 'success',
+          output: { location: 'Ho Chi Minh City' },
+          startedAt: 1780550930739,
+          endedAt: 1780550933810,
+        },
+        'plan-activities': {
+          status: 'success',
+          output: { activities: 'plan text' },
+          startedAt: 1780550933812,
+          endedAt: 1780550968668,
+        },
+      },
+    },
+    ...overrides,
+  }
+}
+
 describe('listRuns', () => {
-  it('returns runs from { runs: [] } shape', async () => {
-    const runs = [{ runId: 'r1', status: 'completed' }]
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runs, total: 1 })))
-    expect(await listRuns('wf1', 'tok')).toEqual(runs)
+  it('unwraps snapshot and returns correct status', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
+    )
+    const runs = await listRuns('wf1', 'tok')
+    expect(runs).toHaveLength(1)
+    expect(runs[0].status).toBe('success')
   })
 
-  it('returns runs from plain array', async () => {
-    const runs = [{ runId: 'r1', status: 'running' }]
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(runs)))
-    expect(await listRuns('wf1', 'tok')).toEqual(runs)
+  it('extracts steps from snapshot.context, skipping the input key', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
+    )
+    const [run] = await listRuns('wf1', 'tok')
+    expect(Object.keys(run.steps)).toEqual(['fetch-weather', 'plan-activities'])
+    expect(run.steps['input']).toBeUndefined()
+  })
+
+  it('maps step fields correctly (status, output, startedAt, endedAt)', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
+    )
+    const [run] = await listRuns('wf1', 'tok')
+    const step = run.steps['fetch-weather']
+    expect(step.status).toBe('success')
+    expect(step.output).toEqual({ location: 'Ho Chi Minh City' })
+    expect(step.startedAt).toBe(1780550930739)
+    expect(step.endedAt).toBe(1780550933810)
+  })
+
+  it('includes serializedStepGraph from snapshot', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
+    )
+    const [run] = await listRuns('wf1', 'tok')
+    expect(run.serializedStepGraph).toHaveLength(2)
+    expect(run.serializedStepGraph![0].step.id).toBe('fetch-weather')
+  })
+
+  it('preserves createdAt and updatedAt from the top-level item', async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
+    )
+    const [run] = await listRuns('wf1', 'tok')
+    expect(run.createdAt).toBe('2026-06-04T05:29:28.669Z')
+  })
+
+  it('defaults status to running when snapshot is absent', async () => {
+    const bare = { runId: 'r2', workflowName: 'wf', createdAt: '2026-01-01T00:00:00.000Z' }
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runs: [bare], total: 1 })))
+    const [run] = await listRuns('wf1', 'tok')
+    expect(run.status).toBe('running')
+    expect(run.steps).toEqual({})
+  })
+
+  it('returns empty array and logs warning for completely unexpected shape', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify('not an object')))
+    const result = await listRuns('wf1', 'tok')
+    expect(result).toEqual([])
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[listRuns]'), expect.anything())
+    warnSpy.mockRestore()
   })
 })
 

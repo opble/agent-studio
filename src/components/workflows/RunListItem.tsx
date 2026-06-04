@@ -9,8 +9,18 @@ interface Props {
 
 export default function RunListItem({ run, workflowId }: Props) {
   const navigate = useNavigate()
-  const stepCount = Object.keys(run.steps ?? {}).length
   const date = run.createdAt ? new Date(run.createdAt) : null
+
+  // Steps done = entries in steps map (populated as each step completes)
+  const doneCount = Object.keys(run.steps ?? {}).length
+  // Total steps = from the static step graph (always present in the run record)
+  const totalCount = run.serializedStepGraph?.filter(e => e.type === 'step').length ?? 0
+  const stepLabel =
+    totalCount > 0
+      ? `${doneCount}/${totalCount} step${totalCount !== 1 ? 's' : ''}`
+      : doneCount > 0
+        ? `${doneCount} step${doneCount !== 1 ? 's' : ''}`
+        : 'no steps'
 
   return (
     <button
@@ -29,7 +39,7 @@ export default function RunListItem({ run, workflowId }: Props) {
           {run.runId}
         </p>
         <p className="mt-0.5 text-[11px] text-[var(--color-text-muted)]">
-          {stepCount} step{stepCount !== 1 ? 's' : ''}
+          {stepLabel}
           {date && <> · {date.toLocaleString()}</>}
         </p>
       </div>
