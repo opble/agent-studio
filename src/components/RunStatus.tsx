@@ -1,6 +1,7 @@
 import type { WorkflowRun } from '../api/workflows'
 import { TERMINAL_STATUSES } from '../api/workflows'
 import Spinner from './ui/Spinner'
+import ResultRenderer from './workflows/ResultRenderer'
 import RunStepRow from './workflows/RunStepRow'
 import StepStatusBadge from './workflows/StepStatusBadge'
 
@@ -51,9 +52,7 @@ export default function RunStatus({ run }: Props) {
           <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
             Result
           </p>
-          <pre className="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-4 py-4 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-wrap break-words shadow-sm">
-            {JSON.stringify(run.result, null, 2)}
-          </pre>
+          <ResultRenderer result={run.result} />
         </div>
       )}
 

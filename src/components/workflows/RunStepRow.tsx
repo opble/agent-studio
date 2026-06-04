@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { WorkflowStepResult } from '../../api/workflows'
+import ResultRenderer from './ResultRenderer'
 import StepStatusBadge from './StepStatusBadge'
 
 interface Props {
@@ -41,9 +42,7 @@ export default function RunStepRow({ stepId, step }: Props) {
           {hasError ? (
             <p className="font-mono text-xs text-[var(--color-danger)]">{step.error}</p>
           ) : (
-            <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs text-[var(--color-text-secondary)]">
-              {JSON.stringify(step.output, null, 2)}
-            </pre>
+            <ResultRenderer result={step.output} />
           )}
         </div>
       )}
