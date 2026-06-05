@@ -1,61 +1,47 @@
-# agent-studio — Build Brief
+# agent-studio
 
-## What is agent-studio?
-
-An open-source, self-hosted private studio for Mastra-based agent systems. It replaces the Mastra Studio dev tool for production/remote use, with Auth0 authentication built in. Designed to work across multiple Mastra deployments (work projects, personal projects, etc.).
+An open-source, self-hosted private studio for [Mastra](https://mastra.ai)-based agent systems. It replaces Mastra's dev-only Studio for production and remote use, with Auth0 authentication built in.
 
 ## Why it exists
 
-Mastra's official Studio is a dev-only tool (localhost, no auth). Their managed platform with RBAC and remote access is a paid product. agent-studio fills the gap for teams and individuals who want:
+Mastra's official Studio is a dev-only tool (localhost, no auth). agent-studio fills the gap for teams and individuals who want:
+
 - Remote access to their agent/workflow UI from anywhere
 - Auth0-based login (no anonymous access)
-- A self-hostable, open-source alternative
+- A self-hostable, open-source alternative to Mastra's managed platform
+
+## Features
+
+- **Auth0 login / logout** — PKCE SPA flow, tokens in memory only (no localStorage)
+- **Agents** — list all agents, open a chat, stream responses in real time
+- **Workflows** — list all workflows, trigger with a schema-validated input form, watch step-by-step progress live, resume suspended runs
+- **History** — browse past workflow runs per workflow, inspect step output
+- **Connection health indicator** — green/red dot showing Mastra server reachability
+- **Dark / light theme** — persisted via localStorage (UI preference only)
 
 ## Tech Stack
 
-- **React + Vite** — pure static SPA, no server required
-- **@auth0/auth0-react** — PKCE flow, tokens in memory (not cookies), no backend needed
-- **Tailwind CSS** — styling
-- **React Query (TanStack Query)** — API data fetching, polling for workflow run status
-- **React Router** — client-side routing
-- **TypeScript** — strict mode
+- **React 18 + Vite** — pure static SPA, no server required
+- **TypeScript** (strict mode)
+- **Tailwind CSS**
+- **React Router v6**
+- **TanStack Query v5** — data fetching and workflow run polling
+- **@auth0/auth0-react** — PKCE flow
+- **Zod** — schema-based form validation for workflow inputs
 
-## Auth Architecture
+## Getting Started
 
-Auth0 SPA (PKCE) flow:
-1. User visits the app → redirected to Auth0 login if not authenticated
-2. Auth0 returns access token to the browser (memory only, not localStorage)
-3. Every Mastra API call includes `Authorization: Bearer <access_token>`
-4. Mastra server validates the token (via its own serverMiddleware or API Gateway JWT Authorizer)
+### 1. Clone and install
 
-No backend/BFF needed. Token never touches a server we control.
-
-## Mastra API Integration
-
-The app connects to a configurable Mastra server URL (set via env var `VITE_MASTRA_API_URL`).
-
-Key Mastra REST endpoints to integrate (all under `/api`):
-
-```
-GET  /api/agents                          — list all agents
-POST /api/agents/:agentId/generate        — run agent (stream response)
-POST /api/agents/:agentId/stream          — stream agent response
-
-GET  /api/workflows                       — list all workflows
-POST /api/workflows/:workflowId/execute   — trigger workflow run
-GET  /api/workflows/:workflowId/runs      — list runs for a workflow
-GET  /api/workflows/:workflowId/runs/:runId — get specific run + step status
-
-GET  /api/system/status                   — health check / verify connection
+```bash
+git clone https://github.com/your-org/agent-studio.git
+cd agent-studio
+pnpm install
 ```
 
-All requests must include:
-```
-Authorization: Bearer <auth0_access_token>
-Content-Type: application/json
-```
+### 2. Configure environment variables
 
-## Environment Variables
+Copy `.env.example` to `.env.local` and fill in your values:
 
 ```env
 VITE_AUTH0_DOMAIN=your-tenant.auth0.com
@@ -64,87 +50,159 @@ VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
 VITE_MASTRA_API_URL=https://your-mastra-deployment.com
 ```
 
-## Project Structure
-
-```
-agent-studio/
-├── public/
-├── src/
-│   ├── auth/
-│   │   ├── Auth0Provider.tsx       — wraps app with Auth0 context
-│   │   └── ProtectedRoute.tsx      — redirects to login if not authenticated
-│   ├── api/
-│   │   ├── client.ts               — base fetch wrapper (injects Bearer token)
-│   │   ├── agents.ts               — agent API calls
-│   │   └── workflows.ts            — workflow API calls
-│   ├── pages/
-│   │   ├── LoginPage.tsx           — Auth0 login redirect page
-│   │   ├── AgentsPage.tsx          — list and run agents
-│   │   ├── WorkflowsPage.tsx       — list and trigger workflows
-│   │   ├── WorkflowRunPage.tsx     — view live run status + step results
-│   │   └── HistoryPage.tsx         — past workflow runs
-│   ├── components/
-│   │   ├── Layout.tsx              — sidebar nav, header, user avatar/logout
-│   │   ├── AgentChat.tsx           — chat interface for running an agent
-│   │   ├── WorkflowForm.tsx        — input form to trigger a workflow
-│   │   ├── RunStatus.tsx           — step-by-step run progress display
-│   │   └── StreamOutput.tsx        — streaming text output for agent responses
-│   ├── hooks/
-│   │   ├── useAgents.ts            — React Query hook for agents
-│   │   ├── useWorkflows.ts         — React Query hook for workflows
-│   │   └── useWorkflowRun.ts       — polling hook for run status
-│   ├── App.tsx
-│   └── main.tsx
-├── index.html
-├── vite.config.ts
-├── tsconfig.json
-├── tailwind.config.ts
-├── .env.example
-├── CLAUDE.md
-└── package.json
-```
-
-## v1 Feature Scope
-
-### In scope
-- Auth0 login / logout
-- Connection to configurable Mastra URL (env var)
-- **Agents**: list all agents, run agent with text input, stream response output
-- **Workflows**: list all workflows, trigger with JSON input form, view step-by-step run progress (polling), view run output
-- **History**: list past workflow runs per workflow
-- Health check indicator (connected / disconnected to Mastra)
-
-### Out of scope for v1
-- Multi-user / RBAC
-- Multiple Mastra server connections in one UI
-- Observability / traces viewer
-- Other auth providers (interface abstracted, Auth0 only implemented)
-- Agent memory / thread management
-
-## Deployment
-
-Static build — deploy anywhere:
-- Vercel (recommended for others — one-click deploy button in README)
-- Cloudflare Pages
-- S3 + CloudFront
-- Netlify
-- Any static host
-
-`pnpm build` → `dist/` folder is the entire deployable artifact.
-
-## Auth0 Application Setup (for README)
+### 3. Auth0 Application Setup
 
 1. Create a **Single Page Application** in Auth0 dashboard
 2. Set **Allowed Callback URLs**: `http://localhost:5173, https://your-domain.com`
 3. Set **Allowed Logout URLs**: same as above
 4. Set **Allowed Web Origins**: same as above
-5. Create an **API** in Auth0 with identifier = `VITE_AUTH0_AUDIENCE` value
-6. Copy Domain and Client ID to `.env`
+5. Create an **API** in Auth0 with identifier matching `VITE_AUTH0_AUDIENCE`
+6. Copy Domain and Client ID to `.env.local`
+
+### 4. Run locally
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start dev server |
+| `pnpm build` | Type-check + production build |
+| `pnpm preview` | Preview production build locally |
+| `pnpm test` | Run all tests |
+| `pnpm fix` | Lint fix + format + lint check |
+| `pnpm check` | Lint + format check (no writes) |
+
+## Mastra API Integration
+
+Connects to any Mastra server via `VITE_MASTRA_API_URL`. All requests carry `Authorization: Bearer <access_token>`.
+
+```
+GET  /api/agents                                — list all agents
+POST /api/agents/:agentId/generate              — run agent (streaming)
+
+GET  /api/workflows                             — list all workflows
+POST /api/workflows/:workflowId                 — create a workflow run
+POST /api/workflows/:workflowId/runs/:runId/start  — start a run with input
+POST /api/workflows/:workflowId/runs/:runId/resume — resume a suspended run
+GET  /api/workflows/:workflowId/runs            — list runs for a workflow
+GET  /api/workflows/:workflowId/runs/:runId     — get run status + step results
+```
+
+> The health indicator probes `GET /api/agents` every 30 seconds (Mastra has no dedicated `/api/system/status` endpoint).
+
+## Project Structure
+
+```
+src/
+├── auth/
+│   ├── Auth0Provider.tsx          — wraps app with Auth0 context
+│   └── ProtectedRoute.tsx         — redirects to login if not authenticated
+├── api/
+│   ├── client.ts                  — base fetch wrapper (injects Bearer token)
+│   ├── agents.ts                  — agent API calls
+│   └── workflows.ts               — workflow API calls (create, start, resume, list)
+├── pages/
+│   ├── LoginPage.tsx
+│   ├── AgentsPage.tsx
+│   ├── WorkflowsPage.tsx
+│   ├── WorkflowRunPage.tsx
+│   └── HistoryPage.tsx
+├── components/
+│   ├── Layout.tsx                 — shell: sidebar + header + mobile nav
+│   ├── AgentChat.tsx              — chat interface for agent interaction
+│   ├── RunStatus.tsx              — step-by-step run progress display
+│   ├── StreamOutput.tsx           — streaming text for agent responses
+│   ├── agents/
+│   │   ├── AgentHeader.tsx
+│   │   ├── AgentListItem.tsx
+│   │   ├── ChatInput.tsx
+│   │   └── ChatMessage.tsx
+│   ├── layout/
+│   │   ├── Header.tsx
+│   │   ├── HealthIndicator.tsx
+│   │   ├── MobileNav.tsx
+│   │   ├── NavLink.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   └── UserMenu.tsx
+│   ├── ui/
+│   │   ├── Avatar.tsx
+│   │   ├── Badge.tsx
+│   │   ├── EmptyState.tsx
+│   │   └── Spinner.tsx
+│   └── workflows/
+│       ├── ResultRenderer.tsx
+│       ├── RunListItem.tsx
+│       ├── RunStepRow.tsx
+│       ├── SchemaForm.tsx         — Zod-validated form built from workflow input schema
+│       ├── StartRunModal.tsx
+│       ├── StepStatusBadge.tsx
+│       ├── WorkflowForm.tsx
+│       └── WorkflowListItem.tsx
+├── hooks/
+│   ├── useAgents.ts
+│   ├── useHealthCheck.ts          — polls /api/agents every 30s for connectivity
+│   ├── useRunActions.ts           — start / resume workflow run actions
+│   ├── useTheme.ts                — dark/light theme toggle (localStorage for preference)
+│   ├── useWorkflowRun.ts          — polls run status until terminal state
+│   ├── useWorkflowRuns.ts         — lists runs for a workflow
+│   └── useWorkflows.ts
+├── utils/
+│   └── theme.ts                   — theme helpers (apply, save, toggle)
+├── styles/
+│   ├── index.css
+│   └── theme.css                  — CSS custom properties for light/dark tokens
+├── App.tsx
+└── main.tsx
+```
+
+## Auth Architecture
+
+Auth0 PKCE SPA flow:
+1. User visits the app → redirected to Auth0 login if not authenticated
+2. Auth0 returns an access token to the browser (memory only, not localStorage)
+3. Every Mastra API call includes `Authorization: Bearer <access_token>`
+4. Mastra server validates the token
+
+No backend/BFF needed. Token never touches a server we control.
+
+## Deployment
+
+`pnpm build` produces a static `dist/` folder. Deploy to any static host:
+
+- Vercel (recommended — set env vars in project settings)
+- Cloudflare Pages
+- Netlify
+- S3 + CloudFront
+- Any static file server
 
 ## Key Design Decisions
 
-- **React + Vite over Next.js**: No server needed. Static build deploys anywhere. Auth0 PKCE SPA flow handles auth fully client-side. Next.js server-side token handling adds unnecessary complexity for a frontend-only tool.
-- **Tokens in memory only**: PKCE flow + in-memory token storage. No localStorage. Acceptable security posture for a personal/team internal tool.
-- **No Mastra SDK dependency**: Call Mastra REST API directly via fetch. Avoids version coupling and keeps the project framework-agnostic.
-- **Polling for run status**: Mastra workflow runs are async. Poll `GET /runs/:runId` every 2s until status is `completed` or `failed`. Use React Query's `refetchInterval`.
-- **Open source name**: `agent-studio` — avoids "mastra" to prevent trademark issues. README describes it as working with Mastra. Positioned to support other agent frameworks in future.
+- **No Mastra SDK dependency** — call the REST API directly via fetch. Avoids version coupling and keeps the project framework-agnostic.
+- **Tokens in memory only** — PKCE flow. Acceptable security posture for a personal/team internal tool.
+- **Polling for run status** — workflow runs are async; poll `GET /runs/:runId` every 2s via React Query's `refetchInterval`, stopping on `completed` or `failed`.
+- **Schema-driven workflow forms** — `SchemaForm` introspects the workflow's input schema (Zod/JSON Schema) so inputs are validated before submission.
+- **Static SPA** — no backend, no SSR. Deploys anywhere. Auth0 PKCE handles auth fully client-side.
+
+## v1 Scope
+
+### In scope
+- Auth0 login / logout
+- Agents: list, chat, stream response
+- Workflows: list, trigger, start, resume, live step progress
+- History: list past runs, inspect step output
+- Connection health indicator
+- Dark / light theme
+
+### Out of scope for v1
+- Multi-user RBAC
+- Multiple Mastra server connections
+- Observability / traces viewer
+- Non-Auth0 auth providers
+- Agent memory / thread management
