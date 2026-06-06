@@ -48,6 +48,9 @@ VITE_AUTH0_DOMAIN=your-tenant.auth0.com
 VITE_AUTH0_CLIENT_ID=your-client-id
 VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
 VITE_MASTRA_API_URL=https://your-mastra-deployment.com
+
+# Optional: set to 'localstorage' to keep the session alive across page reloads
+# VITE_AUTH0_CACHE_LOCATION=memory
 ```
 
 ### 3. Auth0 Application Setup

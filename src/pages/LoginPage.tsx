@@ -5,6 +5,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/layout/ThemeToggle'
 import Spinner from '../components/ui/Spinner'
 
+const persistent = import.meta.env.VITE_AUTH0_CACHE_LOCATION === 'localstorage'
+
 export default function LoginPage() {
   const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0()
   const navigate = useNavigate()
@@ -78,7 +80,9 @@ export default function LoginPage() {
             <div className="flex items-center gap-2.5">
               <Lock size={12} aria-hidden className="shrink-0 text-[var(--color-text-muted)]" />
               <p className="text-[11px] text-[var(--color-text-muted)]">
-                Your token is kept in memory only — never written to disk.
+                {persistent
+                  ? 'Your session is persisted locally so you stay logged in across reloads.'
+                  : 'Your token is kept in memory only — never written to disk.'}
               </p>
             </div>
           </div>

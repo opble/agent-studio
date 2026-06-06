@@ -11,9 +11,13 @@ interface Props {
  * All config is read from env vars — no secrets in source code.
  *
  * Required env vars:
- *   VITE_AUTH0_DOMAIN      e.g. your-tenant.auth0.com
- *   VITE_AUTH0_CLIENT_ID   SPA client ID
- *   VITE_AUTH0_AUDIENCE    API identifier, e.g. https://your-mastra-url/api
+ *   VITE_AUTH0_DOMAIN            e.g. your-tenant.auth0.com
+ *   VITE_AUTH0_CLIENT_ID         SPA client ID
+ *   VITE_AUTH0_AUDIENCE          API identifier, e.g. https://your-mastra-url/api
+ *
+ * Optional env vars:
+ *   VITE_AUTH0_CACHE_LOCATION    'memory' (default) | 'localstorage'
+ *                                Set to 'localstorage' to persist the session across page reloads.
  */
 export default function Auth0Provider({ children }: Props) {
   const navigate = useNavigate()
@@ -31,7 +35,9 @@ export default function Auth0Provider({ children }: Props) {
         navigate(appState?.returnTo ?? '/', { replace: true })
       }}
       useRefreshTokens
-      cacheLocation="memory"
+      cacheLocation={
+        import.meta.env.VITE_AUTH0_CACHE_LOCATION === 'localstorage' ? 'localstorage' : 'memory'
+      }
     >
       {children}
     </BaseAuth0Provider>
