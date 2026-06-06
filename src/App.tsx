@@ -6,6 +6,7 @@ import Layout from './components/Layout'
 import AgentsPage from './pages/AgentsPage'
 import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
+import SettingsPage from './pages/SettingsPage'
 import WorkflowRunPage from './pages/WorkflowRunPage'
 import WorkflowsPage from './pages/WorkflowsPage'
 
@@ -41,6 +42,7 @@ export default function App() {
               <Route path="workflows" element={<WorkflowsPage />} />
               <Route path="workflows/:workflowId/runs/:runId" element={<WorkflowRunPage />} />
               <Route path="history" element={<HistoryPage />} />
+              <Route path="settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/agents" replace />} />
             </Route>
           </Routes>

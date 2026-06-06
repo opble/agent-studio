@@ -1,4 +1,4 @@
-import { Bot, Clock, GitBranch } from 'lucide-react'
+import { Bot, Clock, GitBranch, Settings } from 'lucide-react'
 import NavLink from './NavLink'
 
 export default function MobileNav() {
@@ -20,6 +20,7 @@ export default function MobileNav() {
         compact
       />
       <NavLink to="/history" icon={<Clock size={20} aria-hidden />} label="History" compact />
+      <NavLink to="/settings" icon={<Settings size={20} aria-hidden />} label="Settings" compact />
     </nav>
   )
 }

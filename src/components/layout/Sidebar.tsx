@@ -1,4 +1,4 @@
-import { Bot, Clock, GitBranch } from 'lucide-react'
+import { Bot, Clock, GitBranch, Settings } from 'lucide-react'
 import NavLink from './NavLink'
 import UserMenu from './UserMenu'
 
@@ -29,6 +29,7 @@ export default function Sidebar() {
         <NavLink to="/agents" icon={<Bot size={16} aria-hidden />} label="Agents" />
         <NavLink to="/workflows" icon={<GitBranch size={16} aria-hidden />} label="Workflows" />
         <NavLink to="/history" icon={<Clock size={16} aria-hidden />} label="History" />
+        <NavLink to="/settings" icon={<Settings size={16} aria-hidden />} label="Settings" />
       </nav>
 
       <UserMenu />
