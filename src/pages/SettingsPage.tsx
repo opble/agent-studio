@@ -1,3 +1,4 @@
+import MarkdownSettings from '../components/settings/MarkdownSettings'
 import ThemeSettings from '../components/settings/ThemeSettings'
 
 export default function SettingsPage() {
@@ -12,6 +13,10 @@ export default function SettingsPage() {
 
       <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-sm">
         <ThemeSettings />
+      </div>
+
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-sm">
+        <MarkdownSettings />
       </div>
     </div>
   )

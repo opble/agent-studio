@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const UserSettingsSchema = z.object({
   theme: z.enum(['light', 'dark']).default('light'),
+  markdownEnabled: z.boolean().default(true),
 })
 
 export type UserSettings = z.infer<typeof UserSettingsSchema>

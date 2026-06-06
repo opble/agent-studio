@@ -8,7 +8,7 @@ export function useTheme() {
   // Apply on mount and whenever theme changes
   useEffect(() => {
     applyTheme(theme)
-    saveSettings({ theme })
+    saveSettings({ ...loadSettings(), theme })
   }, [theme])
 
   const toggle = useCallback(() => {

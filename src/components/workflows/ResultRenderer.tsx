@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import CopyButton from '../ui/CopyButton'
+import MarkdownContent from '../ui/MarkdownContent'
 import ResultBlock from './ResultBlock'
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -34,9 +35,7 @@ export default function ResultRenderer({ result }: Props) {
   if (mode === 'prose') {
     return (
       <ResultBlock title="Result" copyText={result as string} defaultExpanded>
-        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--color-text-secondary)]">
-          {result as string}
-        </p>
+        <MarkdownContent>{result as string}</MarkdownContent>
       </ResultBlock>
     )
   }
@@ -53,9 +52,7 @@ export default function ResultRenderer({ result }: Props) {
             defaultExpanded={i === 0}
           >
             {typeof value === 'string' ? (
-              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--color-text-secondary)]">
-                {value}
-              </p>
+              <MarkdownContent>{value}</MarkdownContent>
             ) : (
               <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-[var(--color-text-secondary)]">
                 {JSON.stringify(value, null, 2)}
