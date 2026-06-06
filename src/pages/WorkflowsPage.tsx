@@ -1,4 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { ChevronLeft, GitBranch } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Workflow } from '../api/workflows'
@@ -54,7 +55,7 @@ export default function WorkflowsPage() {
   if (!workflows?.length) {
     return (
       <EmptyState
-        icon={<WorkflowsIcon />}
+        icon={<GitBranch size={22} aria-hidden />}
         title="No workflows found"
         description="No workflows are registered on this Mastra server."
       />
@@ -114,7 +115,7 @@ export default function WorkflowsPage() {
               onClick={() => setSelected(null)}
               className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-accent)]"
             >
-              <ChevronIcon /> Back to workflows
+              <ChevronLeft size={14} aria-hidden /> Back to workflows
             </button>
           </div>
 
@@ -130,45 +131,5 @@ export default function WorkflowsPage() {
         </div>
       )}
     </div>
-  )
-}
-
-function WorkflowsIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <rect x="3" y="3" width="6" height="6" rx="1.5" />
-      <rect x="15" y="3" width="6" height="6" rx="1.5" />
-      <rect x="9" y="15" width="6" height="6" rx="1.5" />
-      <path d="M6 9v3a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V9" />
-      <path d="M12 12v3" />
-    </svg>
-  )
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
   )
 }

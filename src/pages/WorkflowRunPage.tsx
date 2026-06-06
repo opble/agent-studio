@@ -1,3 +1,4 @@
+import { ChevronRight } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import RunStatus from '../components/RunStatus'
 import Spinner from '../components/ui/Spinner'
@@ -20,14 +21,14 @@ export default function WorkflowRunPage() {
         >
           Workflows
         </Link>
-        <ChevronIcon />
+        <ChevronRight size={12} aria-hidden />
         <Link
           to={`/history?workflowId=${workflowId}`}
           className="font-mono transition-colors hover:text-[var(--color-accent)]"
         >
           {workflowId}
         </Link>
-        <ChevronIcon />
+        <ChevronRight size={12} aria-hidden />
         <span className="font-mono text-[var(--color-text-muted)]">{runId.slice(0, 8)}…</span>
       </nav>
 
@@ -48,23 +49,5 @@ export default function WorkflowRunPage() {
 
       {run && <RunStatus run={run} workflowId={workflowId} workflow={workflow} />}
     </div>
-  )
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
   )
 }

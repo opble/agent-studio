@@ -1,3 +1,4 @@
+import { ChevronRight, Play, StepForward } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Workflow, WorkflowRun } from '../../api/workflows'
@@ -89,11 +90,19 @@ export default function RunListItem({ run, workflowId, workflow }: Props) {
             disabled:opacity-50 disabled:cursor-not-allowed
           "
         >
-          {isPending ? <PlayIcon /> : <ResumeIcon />}
+          {isPending ? (
+            <Play size={10} fill="currentColor" aria-hidden />
+          ) : (
+            <StepForward size={11} aria-hidden />
+          )}
           {isPending ? 'Start' : 'Resume'}
         </button>
       ) : (
-        <ChevronIcon />
+        <ChevronRight
+          size={14}
+          aria-hidden
+          className="shrink-0 text-[var(--color-text-muted)] transition-transform group-hover:translate-x-0.5"
+        />
       )}
 
       {/* Modal for pending runs with no captured payload */}
@@ -107,51 +116,5 @@ export default function RunListItem({ run, workflowId, workflow }: Props) {
         />
       )}
     </div>
-  )
-}
-
-function PlayIcon() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <polygon points="5 3 19 12 5 21 5 3" />
-    </svg>
-  )
-}
-
-function ResumeIcon() {
-  return (
-    <svg
-      width="11"
-      height="11"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polygon points="5 4 15 12 5 20 5 4" />
-      <line x1="19" y1="5" x2="19" y2="19" />
-    </svg>
-  )
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="shrink-0 text-[var(--color-text-muted)] transition-transform group-hover:translate-x-0.5"
-      aria-hidden
-    >
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
   )
 }

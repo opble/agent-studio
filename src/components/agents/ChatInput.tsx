@@ -1,3 +1,4 @@
+import { Send, Square } from 'lucide-react'
 import { useRef } from 'react'
 
 interface Props {
@@ -68,7 +69,7 @@ export default function ChatInput({
               hover:bg-[var(--color-danger)]/20 transition-colors
             "
           >
-            <StopIcon />
+            <Square size={11} fill="currentColor" aria-hidden />
           </button>
         ) : (
           <button
@@ -83,7 +84,7 @@ export default function ChatInput({
               disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none
             "
           >
-            <SendIcon />
+            <Send size={13} aria-hidden />
           </button>
         )}
       </div>
@@ -91,32 +92,5 @@ export default function ChatInput({
         <kbd className="font-mono">Shift+Enter</kbd> for new line
       </p>
     </div>
-  )
-}
-
-function SendIcon() {
-  return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
-  )
-}
-
-function StopIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <rect x="4" y="4" width="16" height="16" rx="2.5" />
-    </svg>
   )
 }

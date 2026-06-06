@@ -1,4 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { Lock } from 'lucide-react'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/layout/ThemeToggle'
@@ -75,7 +76,7 @@ export default function LoginPage() {
 
           <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-6 py-4">
             <div className="flex items-center gap-2.5">
-              <LockIcon />
+              <Lock size={12} aria-hidden className="shrink-0 text-[var(--color-text-muted)]" />
               <p className="text-[11px] text-[var(--color-text-muted)]">
                 Your token is kept in memory only — never written to disk.
               </p>
@@ -87,6 +88,7 @@ export default function LoginPage() {
   )
 }
 
+// Brand mark kept as custom SVG — it's the product logo, not a generic icon
 function BrandMark() {
   return (
     <div className="relative flex h-16 w-16 items-center justify-center">
@@ -113,30 +115,11 @@ function BrandMark() {
   )
 }
 
+// Auth0 logo — no lucide equivalent, keep as custom SVG
 function Auth0Icon() {
   return (
     <svg width="15" height="15" viewBox="0 0 32 32" fill="currentColor" aria-hidden>
       <path d="M16 2L2 10v12l14 8 14-8V10L16 2zm0 3.09L27.09 11 24 18.73l-8 4.62-8-4.62L4.91 11 16 5.09zM8 20.27l4 2.31V28l-8-4.62V14.35l4 2.31v3.61zm16 0v-3.61l4-2.31v9.03L20 28v-5.42l4-2.31z" />
-    </svg>
-  )
-}
-
-function LockIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="shrink-0 text-[var(--color-text-muted)]"
-    >
-      <rect x="3" y="11" width="18" height="11" rx="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   )
 }

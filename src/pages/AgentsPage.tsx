@@ -1,3 +1,4 @@
+import { AlertCircle, Bot, ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import type { Agent } from '../api/agents'
 import AgentChat from '../components/AgentChat'
@@ -22,7 +23,7 @@ export default function AgentsPage() {
   if (isError) {
     return (
       <div className="flex items-start gap-3 rounded-xl border border-[var(--color-danger)]/30 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-[var(--color-danger)]">
-        <ErrorIcon />
+        <AlertCircle size={16} aria-hidden className="mt-0.5 shrink-0" />
         Failed to load agents. Check your Mastra server connection.
       </div>
     )
@@ -31,7 +32,7 @@ export default function AgentsPage() {
   if (!agents?.length) {
     return (
       <EmptyState
-        icon={<AgentsIcon />}
+        icon={<Bot size={22} aria-hidden />}
         title="No agents found"
         description="No agents are registered on this Mastra server."
       />
@@ -71,7 +72,7 @@ export default function AgentsPage() {
               onClick={() => setSelected(null)}
               className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-accent)]"
             >
-              <ChevronIcon /> Back to agents
+              <ChevronLeft size={14} aria-hidden /> Back to agents
             </button>
           </div>
           <div className="flex flex-1 flex-col overflow-hidden">
@@ -80,63 +81,5 @@ export default function AgentsPage() {
         </div>
       )}
     </div>
-  )
-}
-
-function AgentsIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2z" />
-      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-    </svg>
-  )
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
-  )
-}
-
-function ErrorIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="mt-0.5 shrink-0"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
   )
 }

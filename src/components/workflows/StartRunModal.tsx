@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import type { Workflow } from '../../api/workflows'
 import { useRunActions } from '../../hooks/useRunActions'
@@ -57,7 +58,7 @@ export default function StartRunModal({ workflow, workflowId, runId, onClose, on
             aria-label="Close"
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-overlay)] hover:text-[var(--color-text-primary)] transition-colors"
           >
-            <CloseIcon />
+            <X size={16} aria-hidden />
           </button>
         </div>
 
@@ -72,24 +73,5 @@ export default function StartRunModal({ workflow, workflowId, runId, onClose, on
         </div>
       </div>
     </div>
-  )
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
   )
 }

@@ -1,3 +1,4 @@
+import { ChevronDown, Play, StepForward } from 'lucide-react'
 import { useState } from 'react'
 import type { Workflow, WorkflowRun } from '../api/workflows'
 import { TERMINAL_STATUSES } from '../api/workflows'
@@ -108,7 +109,11 @@ export default function RunStatus({ run, workflowId, workflow }: Props) {
             onClick={() => setExpanded(v => !v)}
             className="shrink-0 p-0.5 text-[var(--color-text-muted)] hover:opacity-80 transition-opacity"
           >
-            <ChevronIcon expanded={expanded} />
+            <ChevronDown
+              size={14}
+              aria-hidden
+              className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
+            />
           </button>
         </div>
 
@@ -211,36 +216,15 @@ function ActionButton({
         disabled:opacity-50 disabled:cursor-not-allowed
       "
     >
-      {isLoading ? <Spinner size="sm" /> : icon === 'play' ? <PlayIcon /> : <ResumeIcon />}
+      {isLoading ? (
+        <Spinner size="sm" />
+      ) : icon === 'play' ? (
+        <Play size={11} fill="currentColor" aria-hidden />
+      ) : (
+        <StepForward size={12} aria-hidden />
+      )}
       {label}
     </button>
-  )
-}
-
-function PlayIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <polygon points="5 3 19 12 5 21 5 3" />
-    </svg>
-  )
-}
-
-function ResumeIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polygon points="5 4 15 12 5 20 5 4" />
-      <line x1="19" y1="5" x2="19" y2="19" />
-    </svg>
   )
 }
 
@@ -253,23 +237,4 @@ function formatDuration(start: Date, end: Date): string {
   const mins = Math.floor(secs / 60)
   const rem = Math.round(secs % 60)
   return rem > 0 ? `${mins}m ${rem}s` : `${mins}m`
-}
-
-function ChevronIcon({ expanded }: { expanded: boolean }) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
-      aria-hidden
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  )
 }

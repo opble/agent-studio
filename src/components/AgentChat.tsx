@@ -1,4 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { Bot } from 'lucide-react'
 import { useCallback, useRef, useState } from 'react'
 import type { AgentMessage } from '../api/agents'
 import { streamAgentGenerate } from '../api/agents'
@@ -103,7 +104,7 @@ export default function AgentChat({ agentId, agentName }: Props) {
           <EmptyState
             title={`Chat with ${agentName}`}
             description="Send a message to start the conversation."
-            icon={<BotIcon />}
+            icon={<Bot size={22} aria-hidden />}
           />
         )}
         {messages.map((msg, i) => (
@@ -126,27 +127,5 @@ export default function AgentChat({ agentId, agentName }: Props) {
         placeholder={`Message ${agentName}…`}
       />
     </div>
-  )
-}
-
-function BotIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <rect x="3" y="11" width="18" height="10" rx="2" />
-      <circle cx="12" cy="5" r="2" />
-      <path d="M12 7v4" />
-      <line x1="8" y1="15" x2="8" y2="17" />
-      <line x1="16" y1="15" x2="16" y2="17" />
-    </svg>
   )
 }

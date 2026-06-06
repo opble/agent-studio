@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import type { WorkflowStepResult } from '../../api/workflows'
 import ResultRenderer from './ResultRenderer'
@@ -33,7 +34,13 @@ export default function RunStepRow({ stepId, step }: Props) {
             {duration(step.startedAt, step.endedAt)}
           </span>
         )}
-        {(hasOutput || hasError) && <ChevronIcon expanded={expanded} />}
+        {(hasOutput || hasError) && (
+          <ChevronDown
+            size={14}
+            aria-hidden
+            className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        )}
       </button>
 
       {/* Expandable output */}
@@ -54,23 +61,4 @@ function duration(start: number, end: number) {
   const ms = end - start
   if (ms < 1000) return `${ms}ms`
   return `${(ms / 1000).toFixed(1)}s`
-}
-
-function ChevronIcon({ expanded }: { expanded: boolean }) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
-      aria-hidden
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  )
 }

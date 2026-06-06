@@ -1,5 +1,7 @@
+import { AlertCircle, Play } from 'lucide-react'
 import { useState } from 'react'
 import type { JsonSchemaObject } from '../../api/workflows'
+import Spinner from '../ui/Spinner'
 
 interface Props {
   schema: JsonSchemaObject
@@ -138,7 +140,7 @@ export default function SchemaForm({ schema, workflowName, onSubmit, isSubmittin
 
             {fieldError && (
               <p className="mt-1.5 flex items-center gap-1 text-xs text-[var(--color-danger)]">
-                <ErrorIcon />
+                <AlertCircle size={12} aria-hidden className="shrink-0" />
                 {fieldError}
               </p>
             )}
@@ -166,12 +168,12 @@ export default function SchemaForm({ schema, workflowName, onSubmit, isSubmittin
       >
         {isSubmitting ? (
           <>
-            <SpinnerIcon />
+            <Spinner size="sm" />
             Running…
           </>
         ) : (
           <>
-            <PlayIcon />
+            <Play size={13} fill="currentColor" aria-hidden />
             Run {workflowName}
           </>
         )}
@@ -190,42 +192,4 @@ function inputClass(hasError: boolean) {
     focus:border-[var(--color-accent)]/60 focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]/8
     transition-all shadow-sm
   `
-}
-
-function PlayIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <polygon points="5 3 19 12 5 21 5 3" />
-    </svg>
-  )
-}
-
-function SpinnerIcon() {
-  return (
-    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden>
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-    </svg>
-  )
-}
-
-function ErrorIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="shrink-0"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
-  )
 }

@@ -1,3 +1,4 @@
+import { ChevronLeft, Clock } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import type { Workflow } from '../api/workflows'
 import EmptyState from '../components/ui/EmptyState'
@@ -33,7 +34,7 @@ export default function HistoryPage() {
   if (!workflows?.length) {
     return (
       <EmptyState
-        icon={<HistoryIcon />}
+        icon={<Clock size={22} aria-hidden />}
         title="No workflows found"
         description="No workflows are registered on this Mastra server."
       />
@@ -83,7 +84,7 @@ export default function HistoryPage() {
               onClick={clearSelection}
               className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-accent)]"
             >
-              <ChevronLeftIcon /> Back to workflows
+              <ChevronLeft size={14} aria-hidden /> Back to workflows
             </button>
           </div>
 
@@ -126,7 +127,7 @@ function RunsList({ workflowId, workflow }: { workflowId: string; workflow: Work
   if (!runs?.length) {
     return (
       <EmptyState
-        icon={<HistoryIcon />}
+        icon={<Clock size={22} aria-hidden />}
         title="No runs yet"
         description="Trigger a run from the Workflows page to see it here."
       />
@@ -142,44 +143,5 @@ function RunsList({ workflowId, workflow }: { workflowId: string; workflow: Work
         <RunListItem key={run.runId} run={run} workflowId={workflowId} workflow={workflow} />
       ))}
     </div>
-  )
-}
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function HistoryIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9" />
-      <polyline points="12 7 12 12 15 15" />
-    </svg>
-  )
-}
-
-function ChevronLeftIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
   )
 }
