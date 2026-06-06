@@ -1,6 +1,6 @@
 import { Moon, Sun } from 'lucide-react'
+import { useSettings } from '../../contexts/SettingsContext'
 import { useTheme } from '../../hooks/useTheme'
-import { saveSettings } from '../../utils/settings'
 import type { Theme } from '../../utils/theme'
 
 interface ThemeOptionProps {
@@ -38,11 +38,12 @@ function ThemeOption({ value, current, icon, label, description, onSelect }: The
 
 export default function ThemeSettings() {
   const { theme, toggle } = useTheme()
+  const { updateSettings } = useSettings()
 
   function select(t: Theme) {
     if (t !== theme) {
       toggle()
-      saveSettings({ theme: t })
+      updateSettings({ theme: t })
     }
   }
 
