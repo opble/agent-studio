@@ -1,6 +1,3 @@
-import { useEffect, useRef } from 'react'
-import CopyButton from './ui/CopyButton'
-
 interface Props {
   /** The text streamed so far */
   text: string
@@ -9,33 +6,21 @@ interface Props {
 }
 
 /**
- * Renders incrementally-arriving text.
- * Automatically scrolls to the bottom as new content arrives.
+ * Renders incrementally-arriving text with a blinking cursor while streaming.
+ * Copy actions are handled by the parent (ChatMessage action row).
  */
 export default function StreamOutput({ text, streaming = false }: Props) {
-  const bottomRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [text])
-
   if (!text && !streaming) return null
 
   return (
-    <div className="group relative">
-      <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--color-text-primary)]">
-        {text}
-        {streaming && (
-          <span
-            className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-[var(--color-accent)]"
-            aria-hidden
-          />
-        )}
-        <div ref={bottomRef} />
-      </div>
-      <div className="absolute right-0 top-0 opacity-0 transition-opacity group-hover:opacity-100">
-        <CopyButton text={text} disabled={streaming} />
-      </div>
+    <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+      {text}
+      {streaming && (
+        <span
+          className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-[var(--color-accent)]"
+          aria-hidden
+        />
+      )}
     </div>
   )
 }

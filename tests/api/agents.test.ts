@@ -1,51 +1,34 @@
+import { MastraClient } from '@mastra/client-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { listAgents, streamAgentGenerate } from '../../src/api/agents'
+import { getAgentStream, listAgents } from '../../src/api/agents'
 
-// ─── Mock client ──────────────────────────────────────────────────────────────
-vi.mock('../../src/api/client', () => ({
-  mastraFetch: vi.fn(),
-}))
+// ─── Mock SDK ─────────────────────────────────────────────────────────────────
+vi.mock('@mastra/client-js', () => ({ MastraClient: vi.fn() }))
 
-import { mastraFetch } from '../../src/api/client'
-const mockFetch = mastraFetch as ReturnType<typeof vi.fn>
+const MockMastraClient = MastraClient as ReturnType<typeof vi.fn>
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 describe('listAgents', () => {
-  beforeEach(() => mockFetch.mockReset())
+  beforeEach(() => MockMastraClient.mockReset())
 
-  it('returns agents from a plain array response', async () => {
-    const agents = [{ id: 'a1', name: 'Agent One' }]
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(agents)))
+  function mockSDKAgents(
+    record: Record<string, { name: string; description?: string; id?: string }>
+  ) {
+    MockMastraClient.mockReturnValueOnce({ listAgents: vi.fn().mockResolvedValueOnce(record) })
+  }
 
-    const result = await listAgents('tok')
-    expect(result).toEqual(agents)
-  })
-
-  it('returns agents from a { agents: [...] } response', async () => {
-    const agents = [{ id: 'a1', name: 'Agent One' }]
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ agents })))
-
-    const result = await listAgents('tok')
-    expect(result).toEqual(agents)
-  })
-
-  it('returns an empty array when response has no agents key', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({})))
-    const result = await listAgents('tok')
-    expect(result).toEqual([])
-  })
-
-  it('normalises a Record<agentId, config> response (Mastra default shape)', async () => {
+  it('normalises a Record<agentId, config> response (Mastra SDK default)', async () => {
     const record = {
-      weatherAgent: { name: 'Weather Agent', description: 'Gets weather', model: 'gpt-4o' },
+      weatherAgent: { name: 'Weather Agent', description: 'Gets weather' },
       searchAgent: { name: 'Search Agent' },
     }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    mockSDKAgents(record)
     const result = await listAgents('tok')
     expect(result).toHaveLength(2)
     expect(result.find(a => a.id === 'weatherAgent')).toMatchObject({
       id: 'weatherAgent',
       name: 'Weather Agent',
+      description: 'Gets weather',
     })
     expect(result.find(a => a.id === 'searchAgent')).toMatchObject({
       id: 'searchAgent',
@@ -53,62 +36,44 @@ describe('listAgents', () => {
     })
   })
 
-  it('calls mastraFetch with correct path and GET method', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([])))
-    await listAgents('test-token')
+  it('prefers the id field on the config over the record key', async () => {
+    mockSDKAgents({ agent_key: { id: 'real-id', name: 'Agent' } })
+    const [agent] = await listAgents('tok')
+    expect(agent.id).toBe('real-id')
+  })
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/agents', { method: 'GET' }, 'test-token')
+  it('falls back to the record key when config has no id field', async () => {
+    mockSDKAgents({ my_agent: { name: 'My Agent' } })
+    const [agent] = await listAgents('tok')
+    expect(agent.id).toBe('my_agent')
+  })
+
+  it('returns an empty array for an empty record', async () => {
+    mockSDKAgents({})
+    expect(await listAgents('tok')).toEqual([])
+  })
+
+  it('includes description when present', async () => {
+    mockSDKAgents({ a1: { name: 'A', description: 'Desc' } })
+    const [a] = await listAgents('tok')
+    expect(a.description).toBe('Desc')
   })
 })
 
-describe('streamAgentGenerate', () => {
-  beforeEach(() => mockFetch.mockReset())
+describe('getAgentStream', () => {
+  beforeEach(() => MockMastraClient.mockReset())
 
-  it('calls mastraFetch with the correct agent path', async () => {
-    const fakeResponse = new Response('', { status: 200 })
-    mockFetch.mockResolvedValueOnce(fakeResponse)
+  it('calls client.getAgent with the agentId and returns the stream response', async () => {
+    const mockStream = { processDataStream: vi.fn() }
+    const mockStreamFn = vi.fn().mockResolvedValueOnce(mockStream)
+    const mockGetAgent = vi.fn().mockReturnValue({ stream: mockStreamFn })
+    MockMastraClient.mockReturnValueOnce({ getAgent: mockGetAgent })
 
-    await streamAgentGenerate('agent-42', { messages: [{ role: 'user', content: 'hi' }] }, 'tok')
+    const messages = [{ role: 'user' as const, content: 'hello' }]
+    const result = await getAgentStream('agent-42', messages, 'tok')
 
-    expect(mockFetch).toHaveBeenCalledOnce()
-    const [path] = mockFetch.mock.calls[0] as [string, unknown, string]
-    expect(path).toBe('/api/agents/agent-42/generate')
-  })
-
-  it('includes messages in the request body', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(''))
-    const messages = [{ role: 'user' as const, content: 'Hello' }]
-    await streamAgentGenerate('a1', { messages }, 'tok')
-
-    const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    const body = JSON.parse(opts.body) as Record<string, unknown>
-    expect(body.messages).toEqual(messages)
-    expect(body.stream).toBe(true)
-  })
-
-  it('omits threadId/resourceId when not provided', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(''))
-    await streamAgentGenerate('a1', { messages: [] }, 'tok')
-
-    const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    const body = JSON.parse(opts.body) as Record<string, unknown>
-    expect(body.threadId).toBeUndefined()
-    expect(body.resourceId).toBeUndefined()
-  })
-
-  it('includes threadId when provided', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(''))
-    await streamAgentGenerate('a1', { messages: [], threadId: 't-1' }, 'tok')
-
-    const [, opts] = mockFetch.mock.calls[0] as [string, { body: string }, string]
-    expect((JSON.parse(opts.body) as Record<string, unknown>).threadId).toBe('t-1')
-  })
-
-  it('returns the raw Response', async () => {
-    const fake = new Response('stream data', { status: 200 })
-    mockFetch.mockResolvedValueOnce(fake)
-
-    const res = await streamAgentGenerate('a1', { messages: [] }, 'tok')
-    expect(res).toBe(fake)
+    expect(mockGetAgent).toHaveBeenCalledWith('agent-42')
+    expect(mockStreamFn).toHaveBeenCalledOnce()
+    expect(result).toBe(mockStream)
   })
 })

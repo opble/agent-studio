@@ -1,11 +1,11 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useQuery } from '@tanstack/react-query'
-import { mastraFetch } from '../api/client'
+import { listAgents } from '../api/agents'
 
 export type HealthStatus = 'checking' | 'connected' | 'disconnected'
 
 /**
- * Polls GET /api/system/status every 30 seconds.
+ * Polls GET /api/agents every 30 seconds as a connectivity probe.
  * Returns a simplified status string consumed by the UI indicator.
  */
 export function useHealthCheck(): HealthStatus {
@@ -18,9 +18,7 @@ export function useHealthCheck(): HealthStatus {
     retry: false,
     queryFn: async () => {
       const token = await getAccessTokenSilently()
-      // Mastra doesn't guarantee a /api/system/status endpoint —
-      // use /api/agents as a lightweight connectivity probe instead.
-      return mastraFetch('/api/agents', { method: 'GET' }, token)
+      return listAgents(token)
     },
   })
 

@@ -1,20 +1,27 @@
+import { MastraClient } from '@mastra/client-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mastraFetch } from '../../src/api/client'
 import { getRun, listRuns, listWorkflows, triggerWorkflow } from '../../src/api/workflows'
 
-vi.mock('../../src/api/client', () => ({ mastraFetch: vi.fn() }))
-const mockFetch = mastraFetch as ReturnType<typeof vi.fn>
+// ─── Mock SDK ─────────────────────────────────────────────────────────────────
+vi.mock('@mastra/client-js', () => ({ MastraClient: vi.fn() }))
 
-beforeEach(() => mockFetch.mockReset())
+const MockMastraClient = MastraClient as ReturnType<typeof vi.fn>
+
+beforeEach(() => MockMastraClient.mockReset())
 
 // ─── listWorkflows ────────────────────────────────────────────────────────────
 describe('listWorkflows', () => {
-  it('normalises Record<id, config> (Mastra default shape)', async () => {
-    const record = {
+  function mockSDKWorkflows(
+    record: Record<string, { name: string; description?: string; inputSchema?: string }>
+  ) {
+    MockMastraClient.mockReturnValueOnce({ listWorkflows: vi.fn().mockResolvedValueOnce(record) })
+  }
+
+  it('normalises Record<id, config> (Mastra SDK default shape)', async () => {
+    mockSDKWorkflows({
       weatherWorkflow: { name: 'Weather Workflow', description: 'Gets weather' },
       searchWorkflow: { name: 'Search Workflow' },
-    }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    })
     const result = await listWorkflows('tok')
     expect(result).toHaveLength(2)
     expect(result.find(w => w.id === 'weatherWorkflow')).toMatchObject({
@@ -23,31 +30,12 @@ describe('listWorkflows', () => {
     })
   })
 
-  it('handles plain array response', async () => {
-    const arr = [{ id: 'w1', name: 'W1' }]
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(arr)))
-    const result = await listWorkflows('tok')
-    expect(result).toEqual(arr)
-  })
-
-  it('handles { workflows: [] } response', async () => {
-    const workflows = [{ id: 'w1', name: 'W1' }]
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ workflows })))
-    expect(await listWorkflows('tok')).toEqual(workflows)
-  })
-
-  it('returns empty array for empty object', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({})))
+  it('returns empty array for empty record', async () => {
+    mockSDKWorkflows({})
     expect(await listWorkflows('tok')).toEqual([])
   })
 
-  it('calls GET /api/workflows', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([])))
-    await listWorkflows('tok')
-    expect(mockFetch).toHaveBeenCalledWith('/api/workflows', { method: 'GET' }, 'tok')
-  })
-
-  it('parses inputSchema string and attaches it to the workflow (Record shape)', async () => {
+  it('parses inputSchema string and attaches it to the workflow', async () => {
     const rawSchema = JSON.stringify({
       json: {
         type: 'object',
@@ -55,8 +43,7 @@ describe('listWorkflows', () => {
         required: ['city'],
       },
     })
-    const record = { weatherWorkflow: { name: 'Weather', inputSchema: rawSchema } }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    mockSDKWorkflows({ weatherWorkflow: { name: 'Weather', inputSchema: rawSchema } })
     const [wf] = await listWorkflows('tok')
     expect(wf.inputSchema).toMatchObject({
       type: 'object',
@@ -66,15 +53,13 @@ describe('listWorkflows', () => {
   })
 
   it('silently ignores a malformed inputSchema string', async () => {
-    const record = { w1: { name: 'W1', inputSchema: 'not-valid-json' } }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    mockSDKWorkflows({ w1: { name: 'W1', inputSchema: 'not-valid-json' } })
     const [wf] = await listWorkflows('tok')
     expect(wf.inputSchema).toBeUndefined()
   })
 
   it('returns undefined inputSchema when property is absent', async () => {
-    const record = { w1: { name: 'W1' } }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(record)))
+    mockSDKWorkflows({ w1: { name: 'W1' } })
     const [wf] = await listWorkflows('tok')
     expect(wf.inputSchema).toBeUndefined()
   })
@@ -82,52 +67,37 @@ describe('listWorkflows', () => {
 
 // ─── triggerWorkflow ──────────────────────────────────────────────────────────
 describe('triggerWorkflow', () => {
-  // Helper: mock both the create-run call and the start call
-  function mockTwoStep(runId = 'r1', workflowId?: string) {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runId, workflowId })) // create-run response
-    )
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ message: 'Workflow run started' })) // start response
-    )
+  function mockTrigger(runId = 'r1') {
+    const mockStart = vi.fn().mockResolvedValueOnce({ message: 'started' })
+    const mockRun = { runId, start: mockStart }
+    const mockCreateRun = vi.fn().mockResolvedValueOnce(mockRun)
+    const mockGetWorkflow = vi.fn().mockReturnValue({ createRun: mockCreateRun })
+    MockMastraClient.mockReturnValueOnce({ getWorkflow: mockGetWorkflow })
+    return { mockStart, mockRun, mockCreateRun, mockGetWorkflow }
   }
 
-  it('calls create-run first', async () => {
-    mockTwoStep()
-    await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
-    const [path] = mockFetch.mock.calls[0] as [string, unknown, string]
-    expect(path).toBe('/api/workflows/wf1/create-run')
-  })
-
-  it('calls start with runId as query param', async () => {
-    mockTwoStep('run-xyz')
-    await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
-    const [path] = mockFetch.mock.calls[1] as [string, unknown, string]
-    expect(path).toBe('/api/workflows/wf1/start?runId=run-xyz')
-  })
-
-  it('passes inputData in the start body', async () => {
-    mockTwoStep()
-    await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
-    const [, opts] = mockFetch.mock.calls[1] as [string, { body: string }, string]
-    expect((JSON.parse(opts.body) as Record<string, unknown>).inputData).toEqual({ city: 'Hanoi' })
-  })
-
-  it('returns runId from create-run response', async () => {
-    mockTwoStep('run-abc')
+  it('returns the runId from the created run', async () => {
+    mockTrigger('run-abc')
     const result = await triggerWorkflow('wf1', {}, 'tok')
     expect(result.runId).toBe('run-abc')
   })
 
-  it('surfaces workflowId when present in create-run response', async () => {
-    mockTwoStep('r1', 'wf1')
-    const result = await triggerWorkflow('wf1', {}, 'tok')
+  it('echoes back the workflowId', async () => {
+    mockTrigger('r1')
+    const result = await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
     expect(result.workflowId).toBe('wf1')
   })
 
-  it('throws if create-run response has no runId', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ status: 'pending' })))
-    await expect(triggerWorkflow('wf1', {}, 'tok')).rejects.toThrow()
+  it('calls run.start with the inputData', async () => {
+    const { mockStart } = mockTrigger()
+    await triggerWorkflow('wf1', { city: 'Hanoi' }, 'tok')
+    expect(mockStart).toHaveBeenCalledWith({ inputData: { city: 'Hanoi' } })
+  })
+
+  it('calls getWorkflow with the correct workflowId', async () => {
+    const { mockGetWorkflow } = mockTrigger()
+    await triggerWorkflow('my-workflow', {}, 'tok')
+    expect(mockGetWorkflow).toHaveBeenCalledWith('my-workflow')
   })
 })
 
@@ -167,29 +137,30 @@ function makeSnapshotRun(overrides: Record<string, unknown> = {}) {
   }
 }
 
+function mockListRuns(response: unknown) {
+  const mockRunsFn = vi.fn().mockResolvedValueOnce(response)
+  MockMastraClient.mockReturnValueOnce({
+    getWorkflow: vi.fn().mockReturnValue({ runs: mockRunsFn }),
+  })
+}
+
 describe('listRuns', () => {
   it('unwraps snapshot and returns correct status', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
-    )
+    mockListRuns({ runs: [makeSnapshotRun()], total: 1 })
     const runs = await listRuns('wf1', 'tok')
     expect(runs).toHaveLength(1)
     expect(runs[0].status).toBe('success')
   })
 
   it('extracts steps from snapshot.context, skipping the input key', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
-    )
+    mockListRuns({ runs: [makeSnapshotRun()], total: 1 })
     const [run] = await listRuns('wf1', 'tok')
     expect(Object.keys(run.steps)).toEqual(['fetch-weather', 'plan-activities'])
     expect(run.steps['input']).toBeUndefined()
   })
 
   it('maps step fields correctly (status, output, startedAt, endedAt)', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
-    )
+    mockListRuns({ runs: [makeSnapshotRun()], total: 1 })
     const [run] = await listRuns('wf1', 'tok')
     const step = run.steps['fetch-weather']
     expect(step.status).toBe('success')
@@ -199,33 +170,27 @@ describe('listRuns', () => {
   })
 
   it('includes serializedStepGraph from snapshot', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
-    )
+    mockListRuns({ runs: [makeSnapshotRun()], total: 1 })
     const [run] = await listRuns('wf1', 'tok')
     expect(run.serializedStepGraph).toHaveLength(2)
     expect(run.serializedStepGraph![0].step.id).toBe('fetch-weather')
   })
 
-  it('preserves createdAt and updatedAt from the top-level item', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
-    )
+  it('preserves createdAt from the top-level item', async () => {
+    mockListRuns({ runs: [makeSnapshotRun()], total: 1 })
     const [run] = await listRuns('wf1', 'tok')
     expect(run.createdAt).toBe('2026-06-04T05:29:28.669Z')
   })
 
   it('extracts payload from snapshot.context.input', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runs: [makeSnapshotRun()], total: 1 }))
-    )
+    mockListRuns({ runs: [makeSnapshotRun()], total: 1 })
     const [run] = await listRuns('wf1', 'tok')
     expect(run.payload).toEqual({ city: 'ho chi minh' })
   })
 
   it('defaults status to running when snapshot is absent', async () => {
     const bare = { runId: 'r2', workflowName: 'wf', createdAt: '2026-01-01T00:00:00.000Z' }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ runs: [bare], total: 1 })))
+    mockListRuns({ runs: [bare], total: 1 })
     const [run] = await listRuns('wf1', 'tok')
     expect(run.status).toBe('running')
     expect(run.steps).toEqual({})
@@ -233,7 +198,7 @@ describe('listRuns', () => {
 
   it('returns empty array and logs warning for completely unexpected shape', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify('not an object')))
+    mockListRuns('not an object')
     const result = await listRuns('wf1', 'tok')
     expect(result).toEqual([])
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[listRuns]'), expect.anything())
@@ -243,18 +208,23 @@ describe('listRuns', () => {
 
 // ─── getRun ───────────────────────────────────────────────────────────────────
 describe('getRun', () => {
-  it('calls the correct path', async () => {
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify({ runId: 'r1', status: 'running', steps: {} }))
-    )
-    await getRun('wf1', 'r1', 'tok')
-    const [path] = mockFetch.mock.calls[0] as [string, unknown, string]
-    expect(path).toBe('/api/workflows/wf1/runs/r1')
+  it('returns the parsed run object', async () => {
+    const raw = { runId: 'r1', status: 'completed', steps: {}, result: { ok: true } }
+    const mockRunById = vi.fn().mockResolvedValueOnce(raw)
+    MockMastraClient.mockReturnValueOnce({
+      getWorkflow: vi.fn().mockReturnValue({ runById: mockRunById }),
+    })
+
+    expect(await getRun('wf1', 'r1', 'tok')).toMatchObject({ runId: 'r1', status: 'completed' })
   })
 
-  it('returns the run object', async () => {
-    const run = { runId: 'r1', status: 'completed', steps: {}, result: { ok: true } }
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(run)))
-    expect(await getRun('wf1', 'r1', 'tok')).toEqual(run)
+  it('calls runById with the correct runId', async () => {
+    const mockRunById = vi.fn().mockResolvedValueOnce({ runId: 'r1', status: 'running', steps: {} })
+    MockMastraClient.mockReturnValueOnce({
+      getWorkflow: vi.fn().mockReturnValue({ runById: mockRunById }),
+    })
+
+    await getRun('wf1', 'r1', 'tok')
+    expect(mockRunById).toHaveBeenCalledWith('r1')
   })
 })

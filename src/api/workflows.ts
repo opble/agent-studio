@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { mastraFetch } from './client'
+import { createMastraClient } from './client'
 
 // ─── Shared primitive schemas ─────────────────────────────────────────────────
 
@@ -154,37 +154,7 @@ const ListRunsResponseSchema = z.object({
   total: z.number().optional(),
 })
 
-// ─── API functions ────────────────────────────────────────────────────────────
-
-/**
- * GET /api/workflows — returns Record<id, WorkflowInfo>.
- * Normalised to Workflow[].
- */
-export async function listWorkflows(token: string): Promise<Workflow[]> {
-  const res = await mastraFetch('/api/workflows', { method: 'GET' }, token)
-  const data: unknown = await res.json()
-
-  if (Array.isArray(data)) return normaliseWorkflowArray(data)
-
-  if (data && typeof data === 'object') {
-    const obj = data as Record<string, unknown>
-    if (Array.isArray(obj.workflows)) return normaliseWorkflowArray(obj.workflows)
-    if (Array.isArray(obj.results)) return normaliseWorkflowArray(obj.results)
-
-    // Mastra default: Record<workflowId, config>
-    // Spread THEN set id so a stale id field in config cannot override the map key.
-    return Object.entries(obj).map(([key, config]) => {
-      const c = config as Record<string, unknown>
-      return {
-        ...(c as Omit<Workflow, 'id' | 'inputSchema'>),
-        id: (c.id as string | undefined) ?? key,
-        name: (c.name as string | undefined) ?? key,
-        inputSchema: parseInputSchema(c.inputSchema),
-      }
-    })
-  }
-  return []
-}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
  * Parses the raw `inputSchema` value from the Mastra API.
@@ -203,57 +173,42 @@ function parseInputSchema(raw: unknown): JsonSchemaObject | undefined {
   }
 }
 
-/** Ensures every workflow in a plain array has an id field. */
-function normaliseWorkflowArray(arr: unknown[]): Workflow[] {
-  return arr.map((item, i) => {
-    const wf = item as Partial<Workflow> & Record<string, unknown>
-    return {
-      ...wf,
-      id: (wf.id ?? wf.workflowId ?? String(i)) as string,
-      name: wf.name ?? wf.id ?? 'Workflow',
-      inputSchema: parseInputSchema(wf.inputSchema),
-    }
-  })
+// ─── API functions ────────────────────────────────────────────────────────────
+
+/**
+ * Lists all registered workflows via the SDK.
+ * SDK returns Record<workflowId, GetWorkflowResponse> — normalised to Workflow[].
+ */
+export async function listWorkflows(token: string): Promise<Workflow[]> {
+  const data = await createMastraClient(token).listWorkflows()
+  return Object.entries(data).map(([id, wf]) => ({
+    id,
+    name: wf.name,
+    description: wf.description,
+    inputSchema: parseInputSchema(wf.inputSchema),
+  }))
 }
 
 /**
- * Triggers a workflow run using the two-step Mastra pattern:
- *   1. POST /create-run          → { runId }  (creates a pending run)
- *   2. POST /start?runId=<id>    → { message } (fires the run async, returns immediately)
- *
- * We navigate to the run page after step 1 so the user sees progress in real time.
- * parse() on step 1 throws if runId is absent — better a hard error than /runs/undefined.
+ * Triggers a new workflow run via the SDK two-step pattern:
+ *   1. workflow.createRun()          → Run instance with runId
+ *   2. run.start({ inputData })      → fires the run asynchronously
  */
 export async function triggerWorkflow(
   workflowId: string,
   inputData: Record<string, unknown>,
   token: string
 ): Promise<TriggerRunResult> {
-  // Step 1: create the pending run and get its id
-  const createRes = await mastraFetch(
-    `/api/workflows/${workflowId}/create-run`,
-    { method: 'POST' },
-    token
-  )
-  const { runId, workflowId: echoedId } = TriggerRunResultSchema.parse(await createRes.json())
-
-  // Step 2: start the run asynchronously (fire-and-forget from the server's perspective)
-  await mastraFetch(
-    `/api/workflows/${workflowId}/start?runId=${encodeURIComponent(runId)}`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ inputData }),
-    },
-    token
-  )
-
-  return { runId, workflowId: echoedId }
+  const client = createMastraClient(token)
+  const run = await client.getWorkflow(workflowId).createRun()
+  await run.start({ inputData })
+  return { runId: run.runId, workflowId }
 }
 
 /**
- * POST /api/workflows/:workflowId/start?runId=<id>
- * Starts a pending run asynchronously (fire-and-forget on the server).
- * inputData is the workflow input payload captured at create-run time.
+ * Starts an existing pending run (created by Mastra internally) via the SDK.
+ * We pass the known runId to createRun so the SDK wraps it in a Run instance,
+ * then call run.start() to fire the run asynchronously.
  */
 export async function startRun(
   workflowId: string,
@@ -261,17 +216,13 @@ export async function startRun(
   inputData: Record<string, unknown>,
   token: string
 ): Promise<void> {
-  await mastraFetch(
-    `/api/workflows/${workflowId}/start?runId=${encodeURIComponent(runId)}`,
-    { method: 'POST', body: JSON.stringify({ inputData }) },
-    token
-  )
+  const client = createMastraClient(token)
+  const run = await client.getWorkflow(workflowId).createRun({ runId })
+  await run.start({ inputData })
 }
 
 /**
- * POST /api/workflows/:workflowId/resume?runId=<id>
- * Resumes a suspended or paused run asynchronously.
- * step and resumeData are optional — Mastra resumes from the current suspension point.
+ * Resumes a suspended or paused run via the SDK.
  */
 export async function resumeRun(
   workflowId: string,
@@ -280,20 +231,18 @@ export async function resumeRun(
   step?: string,
   resumeData?: unknown
 ): Promise<void> {
-  await mastraFetch(
-    `/api/workflows/${workflowId}/resume?runId=${encodeURIComponent(runId)}`,
-    { method: 'POST', body: JSON.stringify({ step, resumeData }) },
-    token
-  )
+  const client = createMastraClient(token)
+  const run = await client.getWorkflow(workflowId).createRun({ runId })
+  await run.resume({ step, resumeData: resumeData as Record<string, unknown> | undefined })
 }
 
 /**
- * GET /api/workflows/:workflowId/runs — list all runs for a workflow.
+ * Lists all runs for a workflow via the SDK.
  * The list endpoint wraps each run in a `snapshot` field; we unwrap it via Zod transform.
  */
 export async function listRuns(workflowId: string, token: string): Promise<WorkflowRun[]> {
-  const res = await mastraFetch(`/api/workflows/${workflowId}/runs`, { method: 'GET' }, token)
-  const parsed = ListRunsResponseSchema.safeParse(await res.json())
+  const data = await createMastraClient(token).getWorkflow(workflowId).runs()
+  const parsed = ListRunsResponseSchema.safeParse(data)
   if (!parsed.success) {
     console.warn('[listRuns] unexpected response shape', parsed.error.flatten())
     return []
@@ -301,16 +250,12 @@ export async function listRuns(workflowId: string, token: string): Promise<Workf
   return parsed.data.runs
 }
 
-/** GET /api/workflows/:workflowId/runs/:runId — get a single run's state. */
+/** Gets a single run's state via the SDK. */
 export async function getRun(
   workflowId: string,
   runId: string,
   token: string
 ): Promise<WorkflowRun> {
-  const res = await mastraFetch(
-    `/api/workflows/${workflowId}/runs/${runId}`,
-    { method: 'GET' },
-    token
-  )
-  return res.json() as Promise<WorkflowRun>
+  const data = await createMastraClient(token).getWorkflow(workflowId).runById(runId)
+  return WorkflowRunSchema.parse(data)
 }
