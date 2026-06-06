@@ -19,24 +19,33 @@ export default function ResultBlock({ title, copyText, children, defaultExpanded
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-overlay)]">
-      {/* Header — click title/chevron area to toggle; CopyButton is a sibling, not nested */}
-      <div className="flex w-full items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--color-surface-raised)]">
+      {/* Header row: title (left) | copy + chevron (right) */}
+      <div className="flex w-full items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--color-surface-raised)]">
+        {/* Title — clicking it also toggles */}
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
-          className="flex flex-1 items-center gap-2 text-left"
+          className="flex-1 text-left text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]"
         >
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
-            {title}
-          </span>
-          <ChevronDown
-            size={14}
-            aria-hidden
-            className={`ml-auto text-[var(--color-text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
-          />
+          {title}
         </button>
 
-        <CopyButton text={copyText} />
+        {/* Right-side controls: copy first, chevron last (right-most) */}
+        <div className="flex items-center gap-1">
+          <CopyButton text={copyText} />
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            aria-label={expanded ? 'Collapse' : 'Expand'}
+            className="flex items-center justify-center rounded p-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
+          >
+            <ChevronDown
+              size={14}
+              aria-hidden
+              className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Expandable content */}

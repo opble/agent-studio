@@ -58,6 +58,11 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
+      // Disabled: @mastra/client-js ships loose `any`-typed return values; these
+      // rules would fire on every SDK call and are beyond our control to fix.
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
 
       // ── Prettier (must be last) ────────────────────────────────────────────
       ...prettierConfig.rules,
