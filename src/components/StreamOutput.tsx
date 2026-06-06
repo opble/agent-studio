@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import CopyButton from './ui/CopyButton'
 
 interface Props {
   /** The text streamed so far */
@@ -21,15 +22,20 @@ export default function StreamOutput({ text, streaming = false }: Props) {
   if (!text && !streaming) return null
 
   return (
-    <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--color-text-primary)]">
-      {text}
-      {streaming && (
-        <span
-          className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-[var(--color-accent)]"
-          aria-hidden
-        />
-      )}
-      <div ref={bottomRef} />
+    <div className="group relative">
+      <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--color-text-primary)]">
+        {text}
+        {streaming && (
+          <span
+            className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-[var(--color-accent)]"
+            aria-hidden
+          />
+        )}
+        <div ref={bottomRef} />
+      </div>
+      <div className="absolute right-0 top-0 opacity-0 transition-opacity group-hover:opacity-100">
+        <CopyButton text={text} disabled={streaming} />
+      </div>
     </div>
   )
 }
