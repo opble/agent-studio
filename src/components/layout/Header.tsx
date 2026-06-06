@@ -1,5 +1,4 @@
 import HealthIndicator from './HealthIndicator'
-import ThemeToggle from './ThemeToggle'
 
 interface Props {
   /** Page title shown on mobile where the sidebar is hidden */
@@ -30,7 +29,6 @@ export default function Header({ title }: Props) {
         <div className="md:hidden">
           <HealthIndicator />
         </div>
-        <ThemeToggle />
       </div>
     </header>
   )

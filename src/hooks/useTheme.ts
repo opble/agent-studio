@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { applyTheme, getSavedTheme, saveTheme, toggleTheme, type Theme } from '../utils/theme'
+import { loadSettings, saveSettings } from '../utils/settings'
+import { applyTheme, toggleTheme, type Theme } from '../utils/theme'
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(getSavedTheme)
+  const [theme, setTheme] = useState<Theme>(() => loadSettings().theme)
 
   // Apply on mount and whenever theme changes
   useEffect(() => {
     applyTheme(theme)
-    saveTheme(theme)
+    saveSettings({ theme })
   }, [theme])
 
   const toggle = useCallback(() => {

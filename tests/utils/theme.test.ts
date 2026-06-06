@@ -1,24 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { applyTheme, getSavedTheme, saveTheme, toggleTheme } from '../../src/utils/theme'
-
-// ─── localStorage mock ──────────────────────────────────────────────────────
-const localStorageMock = (() => {
-  let store: Record<string, string> = {}
-  return {
-    getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => {
-      store[key] = value
-    },
-    removeItem: (key: string) => {
-      delete store[key]
-    },
-    clear: () => {
-      store = {}
-    },
-  }
-})()
-
-Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock })
+import { applyTheme, toggleTheme } from '../../src/utils/theme'
 
 // ─── document.documentElement mock ─────────────────────────────────────────
 const classList = { add: vi.fn(), remove: vi.fn() }
@@ -28,33 +9,6 @@ Object.defineProperty(document, 'documentElement', {
 })
 
 // ─── Tests ──────────────────────────────────────────────────────────────────
-describe('getSavedTheme', () => {
-  beforeEach(() => localStorageMock.clear())
-
-  it('returns "light" when nothing is saved', () => {
-    expect(getSavedTheme()).toBe('light')
-  })
-
-  it('returns "dark" when "dark" is saved', () => {
-    localStorageMock.setItem('agent-studio-theme', 'dark')
-    expect(getSavedTheme()).toBe('dark')
-  })
-
-  it('returns "light" for an unrecognised saved value', () => {
-    localStorageMock.setItem('agent-studio-theme', 'solarized')
-    expect(getSavedTheme()).toBe('light')
-  })
-})
-
-describe('saveTheme', () => {
-  beforeEach(() => localStorageMock.clear())
-
-  it('persists the theme value', () => {
-    saveTheme('dark')
-    expect(localStorageMock.getItem('agent-studio-theme')).toBe('dark')
-  })
-})
-
 describe('applyTheme', () => {
   beforeEach(() => {
     classList.add.mockClear()

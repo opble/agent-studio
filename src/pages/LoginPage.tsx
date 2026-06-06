@@ -2,7 +2,6 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { Lock } from 'lucide-react'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import ThemeToggle from '../components/layout/ThemeToggle'
 import Spinner from '../components/ui/Spinner'
 
 const persistent = import.meta.env.VITE_AUTH0_CACHE_LOCATION === 'localstorage'
@@ -23,11 +22,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-[var(--color-surface)] px-4">
-      {/* Theme toggle */}
-      <div className="absolute right-4 top-4">
-        <ThemeToggle />
-      </div>
-
       {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
         <div className="absolute -top-32 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-indigo-500 opacity-[0.07] blur-[80px]" />
