@@ -23,6 +23,14 @@ function valueToCopyText(value: unknown): string {
   return typeof value === 'string' ? value : JSON.stringify(value, null, 2)
 }
 
+/** Convert camelCase / snake_case keys to "Title Case" for display. */
+function formatKey(key: string): string {
+  return key
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase → words
+    .replace(/[_-]+/g, ' ') // snake_case / kebab-case → words
+    .replace(/\b\w/g, c => c.toUpperCase()) // capitalise each word
+}
+
 interface Props {
   result: unknown
 }
@@ -47,7 +55,7 @@ export default function ResultRenderer({ result }: Props) {
         {Object.entries(result as Record<string, unknown>).map(([key, value], i) => (
           <ResultBlock
             key={key}
-            title={key}
+            title={formatKey(key)}
             copyText={valueToCopyText(value)}
             defaultExpanded={i === 0}
           >
