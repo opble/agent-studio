@@ -15,9 +15,11 @@ interface Props {
   workflowId: string
   /** Workflow definition — needed to render the input form when starting a payload-less pending run */
   workflow?: Workflow | null
+  /** When true, suppress the final result block (used by 3-pane layout which renders it separately) */
+  hideResult?: boolean
 }
 
-export default function RunStatus({ run, workflowId, workflow }: Props) {
+export default function RunStatus({ run, workflowId, workflow, hideResult = false }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const isTerminal = TERMINAL_STATUSES.includes(run.status)
@@ -164,15 +166,17 @@ export default function RunStatus({ run, workflowId, workflow }: Props) {
         </div>
       )}
 
-      {/* Final result */}
-      {(run.status === 'success' || run.status === 'completed') && run.result !== undefined && (
-        <div>
-          <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
-            Result
-          </p>
-          <ResultRenderer result={run.result} />
-        </div>
-      )}
+      {/* Final result — hidden when parent renders it separately (3-pane layout) */}
+      {!hideResult &&
+        (run.status === 'success' || run.status === 'completed') &&
+        run.result !== undefined && (
+          <div>
+            <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
+              Result
+            </p>
+            <ResultRenderer result={run.result} />
+          </div>
+        )}
 
       {/* Error — show generic message with retry + new-run options */}
       {run.status === 'failed' && (
