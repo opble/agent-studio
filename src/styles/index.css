@@ -1,13 +1,13 @@
 @import './theme.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* ── Highlight.js syntax themes ──────────────────────────────────────────── */
 /* Light theme (default) */
 @import 'highlight.js/styles/github.css';
 /* Dark theme — overrides when <html> has class="dark" */
 @import 'highlight.js/styles/github-dark.css' layer(dark-hljs);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .dark .hljs {
   @apply rounded-lg;
