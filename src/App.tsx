@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Auth0Provider from './auth/Auth0Provider'
 import ProtectedRoute from './auth/ProtectedRoute'
@@ -10,22 +9,17 @@ import LoginPage from './pages/LoginPage'
 import SettingsPage from './pages/SettingsPage'
 import WorkflowRunPage from './pages/WorkflowRunPage'
 import WorkflowsPage from './pages/WorkflowsPage'
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30_000,
-    },
-  },
-})
+import ReactQueryProvider from './providers/ReactQueryProvider'
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SettingsProvider>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Auth0Provider>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      {/* Auth0Provider must be inside BrowserRouter (it uses useNavigate) */}
+      <Auth0Provider>
+        {/* ReactQueryProvider must be inside Auth0Provider so QueryCache
+            error handler can call logout() on 401 responses */}
+        <ReactQueryProvider>
+          <SettingsProvider>
             <Routes>
               {/* Public */}
               <Route path="/login" element={<LoginPage />} />
@@ -48,9 +42,9 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/agents" replace />} />
               </Route>
             </Routes>
-          </Auth0Provider>
-        </BrowserRouter>
-      </SettingsProvider>
-    </QueryClientProvider>
+          </SettingsProvider>
+        </ReactQueryProvider>
+      </Auth0Provider>
+    </BrowserRouter>
   )
 }
