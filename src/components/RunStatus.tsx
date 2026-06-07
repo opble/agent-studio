@@ -74,7 +74,6 @@ export default function RunStatus({ run, workflowId, workflow, hideResult = fals
             className="flex min-w-0 flex-1 items-center gap-3 text-left transition-colors hover:opacity-80"
           >
             <div className="flex items-center gap-2">
-              {!isTerminal && !isPending && <Spinner size="sm" />}
               <StepStatusBadge status={run.status} />
             </div>
             <span className="text-xs text-[var(--color-text-muted)]">
