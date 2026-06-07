@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import type { WorkflowRunStatus } from '../../api/workflows'
 
 interface Props {
@@ -13,9 +14,8 @@ const config: Record<WorkflowRunStatus, { label: string; classes: string; icon: 
   running: {
     label: 'Running',
     classes: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
-    icon: '⟳',
+    icon: '',
   },
-  // Mastra canonical success status
   success: {
     label: 'Success',
     classes: 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400',
@@ -41,7 +41,6 @@ const config: Record<WorkflowRunStatus, { label: string; classes: string; icon: 
     classes: 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400',
     icon: '⚡',
   },
-  // legacy aliases
   completed: {
     label: 'Completed',
     classes: 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400',
@@ -60,7 +59,11 @@ export default function StepStatusBadge({ status }: Props) {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${classes}`}
     >
-      <span className={status === 'running' ? 'animate-spin inline-block' : ''}>{icon}</span>
+      {status === 'running' ? (
+        <Loader2 size={11} className="animate-spin" aria-hidden />
+      ) : (
+        <span>{icon}</span>
+      )}
       {label}
     </span>
   )
