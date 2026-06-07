@@ -20,7 +20,12 @@ const localStorageMock = (() => {
 
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock })
 
-const DEFAULTS = { theme: 'light', markdownEnabled: true }
+const DEFAULTS = {
+  theme: 'light',
+  markdownEnabled: true,
+  layout: '2panes',
+  sidebarCollapsed: false,
+}
 
 // ─── Tests ──────────────────────────────────────────────────────────────────
 describe('loadSettings', () => {
@@ -33,9 +38,19 @@ describe('loadSettings', () => {
   it('returns saved valid settings', () => {
     localStorageMock.setItem(
       'agent-studio-settings',
-      JSON.stringify({ theme: 'dark', markdownEnabled: false })
+      JSON.stringify({
+        theme: 'dark',
+        markdownEnabled: false,
+        layout: '3panes',
+        sidebarCollapsed: true,
+      })
     )
-    expect(loadSettings()).toEqual({ theme: 'dark', markdownEnabled: false })
+    expect(loadSettings()).toEqual({
+      theme: 'dark',
+      markdownEnabled: false,
+      layout: '3panes',
+      sidebarCollapsed: true,
+    })
   })
 
   it('returns defaults for corrupt JSON', () => {
@@ -55,7 +70,12 @@ describe('loadSettings', () => {
 
   it('fills markdownEnabled default when only theme is saved', () => {
     localStorageMock.setItem('agent-studio-settings', JSON.stringify({ theme: 'dark' }))
-    expect(loadSettings()).toEqual({ theme: 'dark', markdownEnabled: true })
+    expect(loadSettings()).toEqual({
+      theme: 'dark',
+      markdownEnabled: true,
+      layout: '2panes',
+      sidebarCollapsed: false,
+    })
   })
 })
 
@@ -63,14 +83,34 @@ describe('saveSettings', () => {
   beforeEach(() => localStorageMock.clear())
 
   it('persists settings as JSON', () => {
-    saveSettings({ theme: 'dark', markdownEnabled: false })
+    saveSettings({
+      theme: 'dark',
+      markdownEnabled: false,
+      layout: '3panes',
+      sidebarCollapsed: true,
+    })
     expect(localStorageMock.getItem('agent-studio-settings')).toBe(
-      JSON.stringify({ theme: 'dark', markdownEnabled: false })
+      JSON.stringify({
+        theme: 'dark',
+        markdownEnabled: false,
+        layout: '3panes',
+        sidebarCollapsed: true,
+      })
     )
   })
 
   it('round-trips: save then load returns same value', () => {
-    saveSettings({ theme: 'dark', markdownEnabled: false })
-    expect(loadSettings()).toEqual({ theme: 'dark', markdownEnabled: false })
+    saveSettings({
+      theme: 'dark',
+      markdownEnabled: false,
+      layout: '3panes',
+      sidebarCollapsed: true,
+    })
+    expect(loadSettings()).toEqual({
+      theme: 'dark',
+      markdownEnabled: false,
+      layout: '3panes',
+      sidebarCollapsed: true,
+    })
   })
 })

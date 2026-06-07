@@ -3,6 +3,8 @@ import { z } from 'zod'
 export const UserSettingsSchema = z.object({
   theme: z.enum(['light', 'dark']).default('light'),
   markdownEnabled: z.boolean().default(true),
+  layout: z.enum(['2panes', '3panes']).default('2panes'),
+  sidebarCollapsed: z.boolean().default(false),
 })
 
 export type UserSettings = z.infer<typeof UserSettingsSchema>
