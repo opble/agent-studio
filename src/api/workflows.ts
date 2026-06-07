@@ -3,6 +3,15 @@ import { createMastraClient } from './client'
 
 // ─── Shared primitive schemas ─────────────────────────────────────────────────
 
+/**
+ * Mastra may return `error` as a plain string OR as an Error-like object
+ * `{ message: string, name: string }`. Normalise both to a string.
+ */
+const ErrorFieldSchema = z
+  .union([z.string(), z.object({ message: z.string() }).passthrough()])
+  .transform(e => (typeof e === 'string' ? e : e.message))
+  .optional()
+
 export const WorkflowRunStatusSchema = z.enum([
   'pending',
   'running',
@@ -59,7 +68,7 @@ export type Workflow = z.infer<typeof WorkflowSchema>
 export const WorkflowStepResultSchema = z.object({
   status: WorkflowRunStatusSchema,
   output: z.unknown().optional(),
-  error: z.string().optional(),
+  error: ErrorFieldSchema,
   /** Unix timestamp (ms) — Mastra returns a number, not an ISO string */
   startedAt: z.number().optional(),
   /** Mastra uses endedAt, not completedAt */
@@ -83,7 +92,7 @@ export const WorkflowRunSchema = z.object({
   workflowName: z.string().optional(),
   status: WorkflowRunStatusSchema,
   result: z.unknown().optional(),
-  error: z.string().optional(),
+  error: ErrorFieldSchema,
   steps: z.record(z.string(), WorkflowStepResultSchema).default({}),
   /** Always present — the static step graph from the workflow definition */
   serializedStepGraph: z.array(WorkflowStepGraphEntrySchema).optional(),
@@ -119,7 +128,7 @@ const ListRunItemSchema = z
       .object({
         status: WorkflowRunStatusSchema.default('running'),
         result: z.unknown().optional(),
-        error: z.string().optional(),
+        error: ErrorFieldSchema,
         serializedStepGraph: z.array(WorkflowStepGraphEntrySchema).optional(),
         // context keys are step IDs plus a special "input" key to skip
         context: z.record(z.string(), z.unknown()).default({}),

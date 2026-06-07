@@ -1,5 +1,6 @@
-import { ChevronDown, Play, StepForward } from 'lucide-react'
+import { ChevronDown, Play, PlusCircle, StepForward } from 'lucide-react'
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import type { Workflow, WorkflowRun } from '../api/workflows'
 import { TERMINAL_STATUSES } from '../api/workflows'
 import { useRunActions } from '../hooks/useRunActions'
@@ -41,13 +42,21 @@ export default function RunStatus({ run, workflowId, workflow }: Props) {
     isTerminal && firstStartMs != null && lastEndMs != null && lastEndMs > firstStartMs
       ? formatDuration(new Date(firstStartMs), new Date(lastEndMs))
       : null
-  const { start, resume, isActing } = useRunActions(workflowId, run.runId)
+  const navigate = useNavigate()
+  const { start, rerun, resume, isActing } = useRunActions(workflowId, run.runId)
 
   function handleStartClick() {
     if (hasPayload) {
       void start(run.payload)
     } else {
       setModalOpen(true)
+    }
+  }
+
+  async function handleRerun() {
+    const newRunId = await rerun(run.payload ?? {})
+    if (newRunId) {
+      navigate(`/workflows/${workflowId}/runs/${newRunId}`)
     }
   }
 
@@ -165,10 +174,35 @@ export default function RunStatus({ run, workflowId, workflow }: Props) {
         </div>
       )}
 
-      {/* Error */}
-      {run.status === 'failed' && run.error && (
-        <div className="rounded-xl border border-[var(--color-danger)]/30 bg-red-50 dark:bg-red-950/20 px-4 py-3 font-mono text-sm text-[var(--color-danger)]">
-          {run.error}
+      {/* Error — show generic message with retry + new-run options */}
+      {run.status === 'failed' && (
+        <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-danger)]/30 bg-red-50 px-4 py-4 dark:bg-red-950/20">
+          <p className="text-sm text-[var(--color-danger)]">
+            This run didn&apos;t complete successfully. Try again with the same input, or start a
+            new run with different settings.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void handleRerun()}
+              disabled={isActing}
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 px-3 py-1.5 text-xs font-semibold text-white shadow shadow-indigo-500/20 transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isActing ? (
+                <Spinner size="sm" />
+              ) : (
+                <Play size={11} fill="currentColor" aria-hidden />
+              )}
+              Run again
+            </button>
+            <Link
+              to="/workflows"
+              className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-overlay)] px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)]/50 hover:text-[var(--color-accent)]"
+            >
+              <PlusCircle size={12} aria-hidden />
+              New run
+            </Link>
+          </div>
         </div>
       )}
 
