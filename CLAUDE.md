@@ -183,3 +183,25 @@ Never commit code that has ESLint **errors** (exit code 1). Warnings are accepta
 - S3 + CloudFront
 
 The app has no server-side component. Set env vars in the host's dashboard.
+
+## Release Process
+
+The project uses a two-track release pipeline via `.github/workflows/release.yml`:
+
+| Track | Trigger | Tag | Use |
+|---|---|---|---|
+| **Dev build** | Every push to `main` | `latest` (moving) | Testing latest code — not for production |
+| **Stable release** | Push to `main` where `package.json` version is new | `vX.Y.Z` (permanent) | Production deployments |
+
+### Rules
+
+- **Never commit a version bump directly to `main`.** Always bump in a PR so it gets reviewed.
+- **Use `pnpm version` to bump** — it updates `package.json` and commits atomically:
+  ```bash
+  pnpm version patch   # bug fixes:        0.1.0 → 0.1.1
+  pnpm version minor   # new features:     0.1.0 → 0.2.0
+  pnpm version major   # breaking changes: 0.1.0 → 1.0.0
+  ```
+- **One version bump per PR.** Don't stack multiple semver bumps.
+- **Dev builds are not for production.** Direct users to a stable `vX.Y.Z` release.
+- `package.json` version is the single source of truth — never create git tags manually.

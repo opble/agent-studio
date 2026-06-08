@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required — shallow clone won't see existing tags
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Read version from package.json
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"    >> "$GITHUB_OUTPUT"
+
+      - name: Check if stable tag already exists
+        id: check
+        run: |
+          if git rev-parse --verify "refs/tags/v${{ steps.pkg.outputs.version }}" > /dev/null 2>&1; then
+            echo "stable=false" >> "$GITHUB_OUTPUT"
+            echo "Tag v${{ steps.pkg.outputs.version }} already exists — skipping stable release."
+          else
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+            echo "Tag v${{ steps.pkg.outputs.version }} is new — will create stable release."
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # ── Stable release (only when version is new) ──────────────────────────
+
+      - name: Zip dist (stable)
+        if: steps.check.outputs.stable == 'true'
+        id: zip_stable
+        run: |
+          ZIP="agent-studio-${{ steps.pkg.outputs.tag }}.zip"
+          cd dist && zip -r "../$ZIP" . && cd ..
+          echo "zip_name=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Push stable tag
+        if: steps.check.outputs.stable == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.pkg.outputs.tag }}"
+          git push origin "${{ steps.pkg.outputs.tag }}"
+
+      - name: Create stable GitHub Release
+        if: steps.check.outputs.stable == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.pkg.outputs.tag }}
+          name: ${{ steps.pkg.outputs.tag }}
+          prerelease: false
+          body: |
+            ## Deployment
+
+            1. Download `${{ steps.zip_stable.outputs.zip_name }}` below
+            2. Unzip — `index.html` is at root, ready to serve
+            3. Upload to any static host (Nginx, S3, Cloudflare Pages, Netlify, Vercel, etc.)
+
+            ### Environment variables
+
+            Vite bakes `VITE_*` vars into the JS bundle at build time.
+            **To change them you must rebuild from source** with your own `.env`.
+
+            ```
+            VITE_AUTH0_DOMAIN=your-tenant.auth0.com
+            VITE_AUTH0_CLIENT_ID=your-spa-client-id
+            VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
+            VITE_MASTRA_API_URL=https://your-mastra-deployment.com
+            # Optional: VITE_AUTH0_CACHE_LOCATION=localstorage
+            ```
+
+            Built from ${{ github.sha }}.
+          files: ${{ steps.zip_stable.outputs.zip_name }}
+
+      # ── Dev build (every push to main) ─────────────────────────────────────
+
+      - name: Zip dist (dev)
+        id: zip_dev
+        run: |
+          ZIP="agent-studio-dev.zip"
+          cd dist && zip -r "../$ZIP" . && cd ..
+          echo "zip_name=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Update dev pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: 'Dev build (latest main)'
+          prerelease: true
+          body: |
+            Automated build from the latest commit on `main`. **Not for production use.**
+
+            **Commit:** ${{ github.sha }}
+            **Version:** ${{ steps.pkg.outputs.version }}
+
+            Same deployment steps as a stable release — but expect rough edges.
+          files: ${{ steps.zip_dev.outputs.zip_name }}
