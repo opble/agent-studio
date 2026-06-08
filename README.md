@@ -177,13 +177,64 @@ No backend/BFF needed. Token never touches a server we control.
 
 ## Deployment
 
-`pnpm build` produces a static `dist/` folder. Deploy to any static host:
+There are two ways to deploy agent-studio.
 
-- Vercel (recommended — set env vars in project settings)
-- Cloudflare Pages
-- Netlify
-- S3 + CloudFront
-- Any static file server
+---
+
+### Option A — Download a release (no build required)
+
+1. Go to [Releases](https://github.com/opble/agent-studio/releases) and download the latest stable `agent-studio-vX.Y.Z.zip`
+2. Unzip it — `index.html` will be at the root
+3. Open `config.js` and fill in your values:
+
+```js
+window.__ENV__ = {
+  VITE_AUTH0_DOMAIN: 'your-tenant.auth0.com',
+  VITE_AUTH0_CLIENT_ID: 'your-spa-client-id',
+  VITE_AUTH0_AUDIENCE: 'https://your-mastra-api-url/api',
+  VITE_MASTRA_API_URL: 'https://your-mastra-deployment.com',
+  VITE_AUTH0_CACHE_LOCATION: 'memory', // or 'localstorage' to persist sessions across reloads
+}
+```
+
+4. Upload the entire unzipped folder to any static host:
+   - **Nginx / Apache** — point the document root at the folder
+   - **S3 + CloudFront** — upload contents, enable static website hosting
+   - **Cloudflare Pages** — drag-and-drop deploy
+   - **Netlify** — drag-and-drop the folder on the Netlify dashboard
+
+> You can update `config.js` at any time without rebuilding — just re-upload the file.
+
+---
+
+### Option B — Build from source
+
+Use this when you want to customise the code or pin env vars at build time.
+
+1. Clone the repo and install dependencies:
+
+```bash
+git clone https://github.com/opble/agent-studio.git
+cd agent-studio
+pnpm install
+```
+
+2. Copy `.env.example` to `.env` and fill in your values:
+
+```env
+VITE_AUTH0_DOMAIN=your-tenant.auth0.com
+VITE_AUTH0_CLIENT_ID=your-spa-client-id
+VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
+VITE_MASTRA_API_URL=https://your-mastra-deployment.com
+```
+
+3. Build:
+
+```bash
+pnpm build
+```
+
+4. Deploy the `dist/` folder to any static host (Vercel, Cloudflare Pages, Netlify, S3, etc.).
 
 ## Key Design Decisions
 
