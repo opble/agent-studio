@@ -59,6 +59,11 @@ VITE_AUTH0_AUDIENCE=       # Auth0 API identifier, e.g. https://your-mastra-url/
 VITE_MASTRA_API_URL=       # Full URL of your Mastra server, e.g. https://agent.xoai.dev
 ```
 
+> **Adding a new env var? Update all three places:**
+> 1. `.env` / `.env.example` — local dev values
+> 2. `src/vite-env.d.ts` — add to `ImportMetaEnv` interface for TypeScript
+> 3. `public/config.js` — add with an empty-string placeholder so it ships in the release zip
+
 ## Key Architecture
 
 ### Auth flow
@@ -67,16 +72,13 @@ Auth0 PKCE SPA flow via `@auth0/auth0-react`. All routes except `/login` are wra
 ### API client pattern
 ```typescript
 // src/api/client.ts
-// All API calls go through this — never call fetch directly in components
-export async function mastraFetch(path: string, options: RequestInit, token: string) {
-  return fetch(`${import.meta.env.VITE_MASTRA_API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
+// All API calls go through this — never call fetch directly in components.
+// Use getEnv() from src/utils/env.ts to read config — never import.meta.env directly.
+export function createMastraClient(token: string): MastraClient {
+  return new MastraClient({
+    baseUrl: getEnv('VITE_MASTRA_API_URL'),
+    headers: { Authorization: `Bearer ${token}` },
+  })
 }
 ```
 
