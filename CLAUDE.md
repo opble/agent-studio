@@ -62,7 +62,7 @@ VITE_MASTRA_API_URL=       # Full URL of your Mastra server, e.g. https://agent.
 > **Adding a new env var? Update all three places:**
 > 1. `.env` / `.env.example` — local dev values
 > 2. `src/vite-env.d.ts` — add to `ImportMetaEnv` interface for TypeScript
-> 3. `public/config.js` — add with an empty-string placeholder so it ships in the release zip
+> 3. `public/config.js` — add with an **empty string** `''` as the value (never a default value — non-empty strings override `.env` in local dev via `getEnv()`)
 
 ## Key Architecture
 
