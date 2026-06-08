@@ -21,11 +21,6 @@ export default function Sidebar() {
         className={`flex items-center border-b border-[var(--color-border)] ${collapsed ? 'justify-center px-2 py-5' : 'gap-3 px-5 py-5'}`}
       >
         {!collapsed && <BrandIcon />}
-        {collapsed && (
-          <div className="flex h-8 w-8 items-center justify-center">
-            <BrandIcon />
-          </div>
-        )}
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <span className="block text-[13px] font-bold tracking-tight text-[var(--color-text-primary)]">
@@ -34,16 +29,16 @@ export default function Sidebar() {
             <span className="block text-[10px] text-[var(--color-text-muted)]">Mastra Runtime</span>
           </div>
         )}
+        {/* Toggle button — sole item when collapsed, trailing icon when expanded */}
         <button
           type="button"
           onClick={() => updateSettings({ sidebarCollapsed: !collapsed })}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className={`
+          className="
             flex h-7 w-7 shrink-0 items-center justify-center rounded-lg
             text-[var(--color-text-muted)] transition-colors
             hover:bg-[var(--color-surface-overlay)] hover:text-[var(--color-text-secondary)]
-            ${collapsed ? 'mt-1' : ''}
-          `}
+          "
         >
           {collapsed ? (
             <PanelLeftOpen size={14} aria-hidden />
