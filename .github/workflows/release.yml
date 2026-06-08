@@ -80,22 +80,22 @@ jobs:
           body: |
             ## Deployment
 
-            1. Download `${{ steps.zip_stable.outputs.zip_name }}` below
-            2. Unzip — `index.html` is at root, ready to serve
-            3. Upload to any static host (Nginx, S3, Cloudflare Pages, Netlify, Vercel, etc.)
+            1. Download `${{ steps.zip_stable.outputs.zip_name }}` below and unzip
+            2. Open `config.js` and fill in your values:
 
-            ### Environment variables
-
-            Vite bakes `VITE_*` vars into the JS bundle at build time.
-            **To change them you must rebuild from source** with your own `.env`.
-
+            ```js
+            window.__ENV__ = {
+              VITE_AUTH0_DOMAIN: 'your-tenant.auth0.com',
+              VITE_AUTH0_CLIENT_ID: 'your-spa-client-id',
+              VITE_AUTH0_AUDIENCE: 'https://your-mastra-api-url/api',
+              VITE_MASTRA_API_URL: 'https://your-mastra-deployment.com',
+              VITE_AUTH0_CACHE_LOCATION: 'memory', // or 'localstorage'
+            }
             ```
-            VITE_AUTH0_DOMAIN=your-tenant.auth0.com
-            VITE_AUTH0_CLIENT_ID=your-spa-client-id
-            VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
-            VITE_MASTRA_API_URL=https://your-mastra-deployment.com
-            # Optional: VITE_AUTH0_CACHE_LOCATION=localstorage
-            ```
+
+            3. Upload the entire unzipped folder to any static host (Nginx, S3, Cloudflare Pages, Netlify, Vercel, etc.)
+
+            > `config.js` is loaded at runtime — no rebuild needed when you change it.
 
             Built from ${{ github.sha }}.
           files: ${{ steps.zip_stable.outputs.zip_name }}
@@ -121,5 +121,5 @@ jobs:
             **Commit:** ${{ github.sha }}
             **Version:** ${{ steps.pkg.outputs.version }}
 
-            Same deployment steps as a stable release — but expect rough edges.
+            Same deployment steps as a stable release: unzip, edit `config.js`, upload. Expect rough edges.
           files: ${{ steps.zip_dev.outputs.zip_name }}
