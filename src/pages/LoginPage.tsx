@@ -3,8 +3,9 @@ import { Lock } from 'lucide-react'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Spinner from '../components/ui/Spinner'
+import { getCacheLocation } from '../utils/env'
 
-const persistent = import.meta.env.VITE_AUTH0_CACHE_LOCATION === 'localstorage'
+const persistent = getCacheLocation() === 'localstorage'
 
 export default function LoginPage() {
   const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0()

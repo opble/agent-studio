@@ -1,4 +1,5 @@
 import { MastraClient } from '@mastra/client-js'
+import { getEnv } from '../utils/env'
 
 /**
  * Returns a configured MastraClient with the Auth0 token injected as a
@@ -7,7 +8,7 @@ import { MastraClient } from '@mastra/client-js'
  */
 export function createMastraClient(token: string): MastraClient {
   return new MastraClient({
-    baseUrl: import.meta.env.VITE_MASTRA_API_URL,
+    baseUrl: getEnv('VITE_MASTRA_API_URL'),
     headers: { Authorization: `Bearer ${token}` },
   })
 }
