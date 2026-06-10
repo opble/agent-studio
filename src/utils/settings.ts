@@ -5,6 +5,7 @@ export const UserSettingsSchema = z.object({
   markdownEnabled: z.boolean().default(true),
   layout: z.enum(['2panes', '3panes']).default('2panes'),
   sidebarCollapsed: z.boolean().default(false),
+  focus: z.enum(['agent', 'workflow', 'dual']).default('workflow'),
 })
 
 export type UserSettings = z.infer<typeof UserSettingsSchema>
