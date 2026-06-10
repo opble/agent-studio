@@ -1,3 +1,4 @@
+import AboutSettings from '../components/settings/AboutSettings'
 import FocusSettings from '../components/settings/FocusSettings'
 import LayoutSettings from '../components/settings/LayoutSettings'
 import MarkdownSettings from '../components/settings/MarkdownSettings'
@@ -27,6 +28,10 @@ export default function SettingsPage() {
 
       <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-sm">
         <LayoutSettings />
+      </div>
+
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-sm">
+        <AboutSettings />
       </div>
     </div>
   )
