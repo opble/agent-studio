@@ -6,6 +6,7 @@ import UserMenu from './UserMenu'
 export default function Sidebar() {
   const { settings, updateSettings } = useSettings()
   const collapsed = settings.sidebarCollapsed
+  const focus = settings.focus
 
   return (
     <aside
@@ -55,24 +56,30 @@ export default function Sidebar() {
             Navigation
           </p>
         )}
-        <NavLink
-          to="/agents"
-          icon={<Bot size={16} aria-hidden />}
-          label="Agents"
-          collapsed={collapsed}
-        />
-        <NavLink
-          to="/workflows"
-          icon={<GitBranch size={16} aria-hidden />}
-          label="Workflows"
-          collapsed={collapsed}
-        />
-        <NavLink
-          to="/history"
-          icon={<Clock size={16} aria-hidden />}
-          label="History"
-          collapsed={collapsed}
-        />
+        {(focus === 'agent' || focus === 'dual') && (
+          <NavLink
+            to="/agents"
+            icon={<Bot size={16} aria-hidden />}
+            label="Agents"
+            collapsed={collapsed}
+          />
+        )}
+        {(focus === 'workflow' || focus === 'dual') && (
+          <NavLink
+            to="/workflows"
+            icon={<GitBranch size={16} aria-hidden />}
+            label="Workflows"
+            collapsed={collapsed}
+          />
+        )}
+        {(focus === 'workflow' || focus === 'dual') && (
+          <NavLink
+            to="/history"
+            icon={<Clock size={16} aria-hidden />}
+            label="History"
+            collapsed={collapsed}
+          />
+        )}
         <NavLink
           to="/settings"
           icon={<Settings size={16} aria-hidden />}

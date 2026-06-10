@@ -1,3 +1,4 @@
+import FocusSettings from '../components/settings/FocusSettings'
 import LayoutSettings from '../components/settings/LayoutSettings'
 import MarkdownSettings from '../components/settings/MarkdownSettings'
 import ThemeSettings from '../components/settings/ThemeSettings'
@@ -10,6 +11,10 @@ export default function SettingsPage() {
         <p className="mt-0.5 text-sm text-[var(--color-text-muted)]">
           Manage your Agent Studio preferences.
         </p>
+      </div>
+
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-sm">
+        <FocusSettings />
       </div>
 
       <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-sm">

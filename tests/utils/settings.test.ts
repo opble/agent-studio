@@ -25,6 +25,7 @@ const DEFAULTS = {
   markdownEnabled: true,
   layout: '2panes',
   sidebarCollapsed: false,
+  focus: 'workflow',
 }
 
 // ─── Tests ──────────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ describe('loadSettings', () => {
         markdownEnabled: false,
         layout: '3panes',
         sidebarCollapsed: true,
+        focus: 'agent',
       })
     )
     expect(loadSettings()).toEqual({
@@ -50,6 +52,7 @@ describe('loadSettings', () => {
       markdownEnabled: false,
       layout: '3panes',
       sidebarCollapsed: true,
+      focus: 'agent',
     })
   })
 
@@ -75,7 +78,28 @@ describe('loadSettings', () => {
       markdownEnabled: true,
       layout: '2panes',
       sidebarCollapsed: false,
+      focus: 'workflow',
     })
+  })
+
+  it('defaults focus to workflow when not saved', () => {
+    localStorageMock.setItem('agent-studio-settings', JSON.stringify({}))
+    expect(loadSettings().focus).toBe('workflow')
+  })
+
+  it('round-trips focus: agent', () => {
+    localStorageMock.setItem('agent-studio-settings', JSON.stringify({ focus: 'agent' }))
+    expect(loadSettings().focus).toBe('agent')
+  })
+
+  it('round-trips focus: dual', () => {
+    localStorageMock.setItem('agent-studio-settings', JSON.stringify({ focus: 'dual' }))
+    expect(loadSettings().focus).toBe('dual')
+  })
+
+  it('rejects an invalid focus value and returns defaults', () => {
+    localStorageMock.setItem('agent-studio-settings', JSON.stringify({ focus: 'invalid' }))
+    expect(loadSettings()).toEqual(DEFAULTS)
   })
 })
 
@@ -88,6 +112,7 @@ describe('saveSettings', () => {
       markdownEnabled: false,
       layout: '3panes',
       sidebarCollapsed: true,
+      focus: 'dual',
     })
     expect(localStorageMock.getItem('agent-studio-settings')).toBe(
       JSON.stringify({
@@ -95,6 +120,7 @@ describe('saveSettings', () => {
         markdownEnabled: false,
         layout: '3panes',
         sidebarCollapsed: true,
+        focus: 'dual',
       })
     )
   })
@@ -105,12 +131,14 @@ describe('saveSettings', () => {
       markdownEnabled: false,
       layout: '3panes',
       sidebarCollapsed: true,
+      focus: 'dual',
     })
     expect(loadSettings()).toEqual({
       theme: 'dark',
       markdownEnabled: false,
       layout: '3panes',
       sidebarCollapsed: true,
+      focus: 'dual',
     })
   })
 })
