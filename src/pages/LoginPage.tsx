@@ -8,7 +8,7 @@ import { getCacheLocation } from '../utils/env'
 const persistent = getCacheLocation() === 'localstorage'
 
 export default function LoginPage() {
-  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0()
+  const { loginWithRedirect, isAuthenticated, isLoading, error } = useAuth0()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/'
@@ -43,6 +43,24 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
+
+        {/* Auth0 error banner */}
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-3 rounded-xl border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 px-4 py-3"
+          >
+            <span className="mt-0.5 text-[var(--color-danger)]" aria-hidden>
+              ⚠
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[var(--color-danger)]">
+                Authentication failed
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--color-danger)]/80">{error.message}</p>
+            </div>
+          </div>
+        )}
 
         {/* Card */}
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] shadow-xl shadow-black/5">
