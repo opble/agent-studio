@@ -11,7 +11,7 @@ const MockMastraClient = MastraClient as ReturnType<typeof vi.fn>
 describe('createMastraClient', () => {
   beforeEach(() => {
     MockMastraClient.mockReset()
-    vi.stubEnv('VITE_MASTRA_API_URL', 'https://api.example.com')
+    vi.stubEnv('VITE_MASTRA_URL', 'https://api.example.com')
   })
   afterEach(() => {
     vi.unstubAllEnvs()

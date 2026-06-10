@@ -47,7 +47,7 @@ Copy `.env.example` to `.env.local` and fill in your values:
 VITE_AUTH0_DOMAIN=your-tenant.auth0.com
 VITE_AUTH0_CLIENT_ID=your-client-id
 VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
-VITE_MASTRA_API_URL=https://your-mastra-deployment.com
+VITE_MASTRA_URL=https://your-mastra-deployment.com
 
 # Optional: set to 'localstorage' to keep the session alive across page reloads
 # VITE_AUTH0_CACHE_LOCATION=memory
@@ -83,7 +83,7 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ## Mastra API Integration
 
-Connects to any Mastra server via `VITE_MASTRA_API_URL`. All requests carry `Authorization: Bearer <access_token>`.
+Connects to any Mastra server via `VITE_MASTRA_URL`. All requests carry `Authorization: Bearer <access_token>`.
 
 ```
 GET  /api/agents                                — list all agents
@@ -192,7 +192,7 @@ window.__ENV__ = {
   VITE_AUTH0_DOMAIN: 'your-tenant.auth0.com',
   VITE_AUTH0_CLIENT_ID: 'your-spa-client-id',
   VITE_AUTH0_AUDIENCE: 'https://your-mastra-api-url/api',
-  VITE_MASTRA_API_URL: 'https://your-mastra-deployment.com',
+  VITE_MASTRA_URL: 'https://your-mastra-deployment.com',
   VITE_AUTH0_CACHE_LOCATION: 'memory', // or 'localstorage' to persist sessions across reloads
 }
 ```
@@ -225,7 +225,7 @@ pnpm install
 VITE_AUTH0_DOMAIN=your-tenant.auth0.com
 VITE_AUTH0_CLIENT_ID=your-spa-client-id
 VITE_AUTH0_AUDIENCE=https://your-mastra-api-url/api
-VITE_MASTRA_API_URL=https://your-mastra-deployment.com
+VITE_MASTRA_URL=https://your-mastra-deployment.com
 ```
 
 3. Build:
