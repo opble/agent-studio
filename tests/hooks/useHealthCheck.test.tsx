@@ -3,11 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { listAgents } from '../../src/api/agents'
+import { checkHealth } from '../../src/api/health'
 import { useHealthCheck } from '../../src/hooks/useHealthCheck'
 
-vi.mock('../../src/api/agents', () => ({ listAgents: vi.fn() }))
-const mockListAgents = listAgents as ReturnType<typeof vi.fn>
+vi.mock('../../src/api/health', () => ({ checkHealth: vi.fn() }))
+const mockCheckHealth = checkHealth as ReturnType<typeof vi.fn>
 
 vi.mock('@auth0/auth0-react', () => ({ useAuth0: vi.fn() }))
 const mockUseAuth0 = useAuth0 as ReturnType<typeof vi.fn>
@@ -21,7 +21,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 describe('useHealthCheck', () => {
   beforeEach(() => {
-    mockListAgents.mockReset()
+    mockCheckHealth.mockReset()
     mockUseAuth0.mockReset()
   })
 
@@ -31,17 +31,17 @@ describe('useHealthCheck', () => {
     expect(result.current).toBe('checking')
   })
 
-  it('returns "connected" after a successful agent list call', async () => {
+  it('returns "connected" after a successful health check', async () => {
     mockUseAuth0.mockReturnValue({ isAuthenticated: true, getAccessTokenSilently: mockGetToken })
-    mockListAgents.mockResolvedValueOnce([])
+    mockCheckHealth.mockResolvedValueOnce(true)
 
     const { result } = renderHook(() => useHealthCheck(), { wrapper })
     await waitFor(() => expect(result.current).toBe('connected'))
   })
 
-  it('returns "disconnected" when the agent list call fails', async () => {
+  it('returns "disconnected" when the health check fails', async () => {
     mockUseAuth0.mockReturnValue({ isAuthenticated: true, getAccessTokenSilently: mockGetToken })
-    mockListAgents.mockRejectedValueOnce(new Error('Network error'))
+    mockCheckHealth.mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useHealthCheck(), { wrapper })
     await waitFor(() => expect(result.current).toBe('disconnected'))

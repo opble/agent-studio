@@ -1,11 +1,11 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useQuery } from '@tanstack/react-query'
-import { listAgents } from '../api/agents'
+import { checkHealth } from '../api/health'
 
 export type HealthStatus = 'checking' | 'connected' | 'disconnected'
 
 /**
- * Polls GET /api/agents every 30 seconds as a connectivity probe.
+ * Polls GET /health every 30 seconds as a connectivity probe.
  * Returns a simplified status string consumed by the UI indicator.
  */
 export function useHealthCheck(): HealthStatus {
@@ -18,7 +18,7 @@ export function useHealthCheck(): HealthStatus {
     retry: false,
     queryFn: async () => {
       const token = await getAccessTokenSilently()
-      return listAgents(token)
+      return checkHealth(token)
     },
   })
 
