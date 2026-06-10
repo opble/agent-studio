@@ -8,7 +8,7 @@ import { getEnv } from '../utils/env'
  */
 export function createMastraClient(token: string): MastraClient {
   return new MastraClient({
-    baseUrl: getEnv('VITE_MASTRA_API_URL'),
+    baseUrl: getEnv('VITE_MASTRA_URL'),
     headers: { Authorization: `Bearer ${token}` },
   })
 }

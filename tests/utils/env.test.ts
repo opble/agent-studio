@@ -35,10 +35,10 @@ describe('getEnv', () => {
     expect(getEnv('VITE_AUTH0_DOMAIN')).toBe('')
   })
 
-  it('runtime VITE_MASTRA_API_URL takes precedence over build-time', () => {
-    window.__ENV__ = { VITE_MASTRA_API_URL: 'https://prod.example.com' }
-    vi.stubEnv('VITE_MASTRA_API_URL', 'https://dev.example.com')
-    expect(getEnv('VITE_MASTRA_API_URL')).toBe('https://prod.example.com')
+  it('runtime VITE_MASTRA_URL takes precedence over build-time', () => {
+    window.__ENV__ = { VITE_MASTRA_URL: 'https://prod.example.com' }
+    vi.stubEnv('VITE_MASTRA_URL', 'https://dev.example.com')
+    expect(getEnv('VITE_MASTRA_URL')).toBe('https://prod.example.com')
   })
 })
 

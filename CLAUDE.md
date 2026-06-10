@@ -56,7 +56,7 @@ agent-studio is an open-source, self-hosted private studio for Mastra-based agen
 VITE_AUTH0_DOMAIN=         # e.g. your-tenant.auth0.com
 VITE_AUTH0_CLIENT_ID=      # Auth0 SPA application client ID
 VITE_AUTH0_AUDIENCE=       # Auth0 API identifier, e.g. https://your-mastra-url/api
-VITE_MASTRA_API_URL=       # Full URL of your Mastra server, e.g. https://agent.xoai.dev
+VITE_MASTRA_URL=       # Full URL of your Mastra server, e.g. https://agent.xoai.dev
 ```
 
 > **Adding a new env var? Update all three places:**
@@ -76,7 +76,7 @@ Auth0 PKCE SPA flow via `@auth0/auth0-react`. All routes except `/login` are wra
 // Use getEnv() from src/utils/env.ts to read config — never import.meta.env directly.
 export function createMastraClient(token: string): MastraClient {
   return new MastraClient({
-    baseUrl: getEnv('VITE_MASTRA_API_URL'),
+    baseUrl: getEnv('VITE_MASTRA_URL'),
     headers: { Authorization: `Bearer ${token}` },
   })
 }
@@ -90,7 +90,7 @@ Agent `generate` endpoint supports streaming. Use `ReadableStream` / `TextDecode
 
 ## Mastra API Endpoints
 
-Base URL: `VITE_MASTRA_API_URL`
+Base URL: `VITE_MASTRA_URL`
 
 ```
 GET  /api/agents                               List all agents
