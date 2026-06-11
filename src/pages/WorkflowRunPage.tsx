@@ -6,6 +6,7 @@ import ResultRenderer from '../components/workflows/ResultRenderer'
 import { useSettings } from '../contexts/SettingsContext'
 import { useWorkflowRun } from '../hooks/useWorkflowRun'
 import { useWorkflows } from '../hooks/useWorkflows'
+import { getApiErrorMessage } from '../utils/error'
 
 function Breadcrumb({ workflowId, runId }: { workflowId: string; runId: string }) {
   return (
@@ -31,7 +32,7 @@ function Breadcrumb({ workflowId, runId }: { workflowId: string; runId: string }
 
 export default function WorkflowRunPage() {
   const { workflowId = '', runId = '' } = useParams()
-  const { data: run, isLoading, isError } = useWorkflowRun(workflowId, runId)
+  const { data: run, isLoading, isError, error } = useWorkflowRun(workflowId, runId)
   const { data: workflows } = useWorkflows()
   const workflow = workflows?.find(w => w.id === workflowId) ?? null
   const { settings } = useSettings()
@@ -56,7 +57,10 @@ export default function WorkflowRunPage() {
         )}
         {isError && (
           <div className="rounded-xl border border-[var(--color-danger)]/30 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-[var(--color-danger)]">
-            Failed to load run status. It may have been deleted or the server is unreachable.
+            {getApiErrorMessage(
+              error,
+              'Failed to load run status. It may have been deleted or the server is unreachable.'
+            )}
           </div>
         )}
         {run && <RunStatus run={run} workflowId={workflowId} workflow={workflow} />}
@@ -79,7 +83,10 @@ export default function WorkflowRunPage() {
         )}
         {isError && (
           <div className="rounded-xl border border-[var(--color-danger)]/30 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-[var(--color-danger)]">
-            Failed to load run status. It may have been deleted or the server is unreachable.
+            {getApiErrorMessage(
+              error,
+              'Failed to load run status. It may have been deleted or the server is unreachable.'
+            )}
           </div>
         )}
         {run && <RunStatus run={run} workflowId={workflowId} workflow={workflow} hideResult />}

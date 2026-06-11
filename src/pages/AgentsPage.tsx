@@ -7,9 +7,10 @@ import AgentListItem from '../components/agents/AgentListItem'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
 import { useAgents } from '../hooks/useAgents'
+import { getApiErrorMessage } from '../utils/error'
 
 export default function AgentsPage() {
-  const { data: agents, isLoading, isError } = useAgents()
+  const { data: agents, isLoading, isError, error } = useAgents()
   const [selected, setSelected] = useState<Agent | null>(null)
 
   if (isLoading) {
@@ -24,7 +25,7 @@ export default function AgentsPage() {
     return (
       <div className="flex items-start gap-3 rounded-xl border border-[var(--color-danger)]/30 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-[var(--color-danger)]">
         <AlertCircle size={16} aria-hidden className="mt-0.5 shrink-0" />
-        Failed to load agents. Check your Mastra server connection.
+        {getApiErrorMessage(error, 'Failed to load agents. Check your Mastra server connection.')}
       </div>
     )
   }

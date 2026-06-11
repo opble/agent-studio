@@ -9,9 +9,10 @@ import Spinner from '../components/ui/Spinner'
 import WorkflowForm from '../components/workflows/WorkflowForm'
 import WorkflowListItem from '../components/workflows/WorkflowListItem'
 import { useWorkflows } from '../hooks/useWorkflows'
+import { getApiErrorMessage } from '../utils/error'
 
 export default function WorkflowsPage() {
-  const { data: workflows, isLoading, isError } = useWorkflows()
+  const { data: workflows, isLoading, isError, error } = useWorkflows()
   const [selected, setSelected] = useState<Workflow | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -47,7 +48,10 @@ export default function WorkflowsPage() {
   if (isError) {
     return (
       <div className="rounded-xl border border-[var(--color-danger)]/40 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-[var(--color-danger)]">
-        Failed to load workflows. Check your Mastra server connection.
+        {getApiErrorMessage(
+          error,
+          'Failed to load workflows. Check your Mastra server connection.'
+        )}
       </div>
     )
   }

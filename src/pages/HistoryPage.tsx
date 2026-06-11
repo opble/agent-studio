@@ -7,6 +7,7 @@ import RunListItem from '../components/workflows/RunListItem'
 import WorkflowListItem from '../components/workflows/WorkflowListItem'
 import { useWorkflowRuns } from '../hooks/useWorkflowRuns'
 import { useWorkflows } from '../hooks/useWorkflows'
+import { getApiErrorMessage } from '../utils/error'
 
 export default function HistoryPage() {
   const { data: workflows, isLoading: loadingWorkflows } = useWorkflows()
@@ -100,7 +101,7 @@ export default function HistoryPage() {
 // ─── RunsList — isolated so it only mounts when a workflow is selected ────────
 
 function RunsList({ workflowId, workflow }: { workflowId: string; workflow: Workflow }) {
-  const { data: runs, isLoading, isError, refetch } = useWorkflowRuns(workflowId)
+  const { data: runs, isLoading, isError, error, refetch } = useWorkflowRuns(workflowId)
 
   if (isLoading) {
     return (
@@ -113,7 +114,9 @@ function RunsList({ workflowId, workflow }: { workflowId: string; workflow: Work
   if (isError) {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-[var(--color-danger)]">Failed to load runs.</p>
+        <p className="text-sm text-[var(--color-danger)]">
+          {getApiErrorMessage(error, 'Failed to load runs.')}
+        </p>
         <button
           onClick={() => refetch()}
           className="text-xs font-medium text-[var(--color-accent)] hover:underline"
